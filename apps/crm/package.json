@@ -1,0 +1,26 @@
+{
+	"name": "crm",
+	"version": "0.1.0",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"dev": "next dev --port 3001",
+		"build": "next build",
+		"start": "next start",
+		"lint": "pnpm biome lint",
+		"check-types": "next typegen && tsc --noEmit"
+	},
+	"dependencies": {
+		"@sofiaflores/ui": "workspace:*",
+		"next": "16.3.8",
+		"react": "19.2.8",
+		"react-dom": "19.2.8"
+	},
+	"devDependencies": {
+		"@sofiaflores/tsconfig": "workspace:*",
+		"@types/node": "26.4.1",
+		"@types/react": "19.2.18",
+		"@types/react-dom": "19.2.5",
+		"typescript": "7.0.2"
+	}
+}
