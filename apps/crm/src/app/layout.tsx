@@ -1,5 +1,5 @@
 import '@sofiaflores/ui/styles.css'
-import { fontKefir } from '../lib/font'
+import { fontEstiana } from '../lib/font'
 import { rootMetadata, viewport } from './metadata'
 
 export const metadata = rootMetadata
@@ -12,7 +12,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="pt-BR">
-			<body className={`${fontKefir.className}`}>{children}</body>
+			<body className={`${fontEstiana.className}`}>{children}</body>
 		</html>
 	)
 }

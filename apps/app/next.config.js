@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+	transpilePackages: ['@sofiaflores/ui', '@sofiaflores/better-auth'],
+}
 
-export default nextConfig;
+export default nextConfig

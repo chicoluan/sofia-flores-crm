@@ -5,7 +5,8 @@
 	"exports": {
 		"./styles.css": "./src/globals.css",
 		"./components/*": "./src/components/*.tsx",
-		"./lib/*": "./src/lib/*.ts"
+		"./lib/*": "./src/lib/*.ts",
+		".": "./src/index.ts"
 	},
 	"scripts": {
 		"lint": "pnpm biome lint",
