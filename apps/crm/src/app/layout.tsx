@@ -1,0 +1,18 @@
+import '@sofiaflores/ui/styles.css'
+import { fontKefir } from '../lib/font'
+import { rootMetadata, viewport } from './metadata'
+
+export const metadata = rootMetadata
+export { viewport }
+
+export default function RootLayout({
+	children,
+}: Readonly<{
+	children: React.ReactNode
+}>) {
+	return (
+		<html lang="pt-BR">
+			<body className={`${fontKefir.className}`}>{children}</body>
+		</html>
+	)
+}

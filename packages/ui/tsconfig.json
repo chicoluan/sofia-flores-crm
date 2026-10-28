@@ -1,8 +1,14 @@
 {
-	"extends": "@repo/typescript-config/react-library.json",
+	"extends": "@sofiaflores/tsconfig/react-library.json",
 	"compilerOptions": {
 		"outDir": "dist",
-		"strictNullChecks": true
+		"rootDir": "src",
+		"strictNullChecks": true,
+		"baseUrl": ".",
+		"ignoreDeprecations": "6.0",
+		"paths": {
+			"@/*": ["./src/*"]
+		}
 	},
 	"include": ["src"],
 	"exclude": ["node_modules", "dist"]
