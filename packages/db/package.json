@@ -2,13 +2,27 @@
 	"name": "@sofiaflores/db",
 	"version": "0.0.0",
 	"private": true,
+	"type": "module",
+	"main": "./src/index.ts",
+	"exports": {
+		".": "./src/index.ts"
+	},
 	"devDependencies": {
-		"prisma": "8.0.0-rc.27"
+		"@types/node": "^26.6.5",
+		"prisma": "^7.10.1"
 	},
 	"dependencies": {
-		"@prisma/client": "^7.10.1"
+		"@prisma/adapter-pg": "^7.10.1",
+		"@prisma/client": "^7.10.1",
+		"@sofiaflores/tsconfig": "workspace:*",
+		"dotenv": "^17.4.2",
+		"pg": "^8.22.0"
 	},
 	"scripts": {
-		"postinstall": "prisma skills sync || exit 0"
+		"db:generate": "prisma generate",
+		"db:migrate": "prisma migrate dev",
+		"db:studio": "prisma studio",
+		"db:deploy": "prisma migrate deploy",
+		"postinstall": "prisma generate"
 	}
 }

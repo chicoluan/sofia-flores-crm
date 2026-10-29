@@ -2,14 +2,26 @@
 	"name": "sofia-flores-crm",
 	"private": true,
 	"scripts": {
-		"build": "turbo run build",
-		"dev": "turbo run dev",
-		"lint": "turbo run lint",
-		"format": "prettier --write \"**/*.{ts,tsx,md}\"",
-		"check-types": "turbo run check-types"
+		"compose:up": "docker compose up -d",
+		"compose:status": "docker compose ps",
+		"compose:down": "docker compose down",
+		"trunk:sync": "trunk git-hooks sync",
+		"db:generate": "turbo db:generate",
+		"db:migrate": "turbo db:migrate",
+		"db:studio": "turbo db:studio",
+		"clean": "turbo clean",
+		"lint": "trunk check",
+		"format": "trunk fmt",
+		"dev": "turbo dev",
+		"dev:crm": "clear && turbo dev --filter @sofiaflores/crm",
+		"dev:app": "clear && turbo dev --filter @sofiaflores/app",
+		"build": "turbo build",
+		"start": "turbo start"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.6.3",
+		"@trunkio/launcher": "~1.3.1",
+		"@types/node": "^26.1.2",
 		"turbo": "^2.11.10",
 		"typescript": "7.0.2"
 	},
