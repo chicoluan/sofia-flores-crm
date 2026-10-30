@@ -6,6 +6,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@sofiaflores/ui/components/card'
+import LoginProviders from './LoginProviders'
 
 export default function Login(): JSX.Element {
 	return (
@@ -19,7 +20,9 @@ export default function Login(): JSX.Element {
 					😉
 				</CardDescription>
 			</CardHeader>
-			<CardContent className="flex w-full flex-col gap-6"></CardContent>
+			<CardContent className="flex w-full flex-col gap-6">
+				<LoginProviders />
+			</CardContent>
 		</Card>
 	)
 }
