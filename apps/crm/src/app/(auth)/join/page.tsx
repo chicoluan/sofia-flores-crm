@@ -4,16 +4,16 @@ import Login from './ui/Login'
 
 export default function LoginPage(): JSX.Element {
 	return (
-		<div className="flex h-screen w-full">
-			<div className="flex w-full items-center justify-center lg:w-1/2">
+		<div className='flex h-screen w-full'>
+			<div className='flex w-full items-center justify-center lg:w-1/2'>
 				<Login />
 			</div>
-			<div className="relative hidden lg:block lg:w-1/2">
+			<div className='relative hidden lg:block lg:w-1/2'>
 				<Image
 					fill
-					src="/assets/Login Asset.png"
-					className="object-cover"
-					alt=""
+					src='/assets/Login Asset.png'
+					className='object-cover'
+					alt='Buquê'
 				/>
 			</div>
 		</div>

@@ -1,166 +1,168 @@
 ---
+
 from: "8.0.0-rc.19"
 to: "8.0.0-rc.20"
 changes:
-  - id: stored-contracts-expand-type-aliases
-    summary: |
-      A stored SQL contract whose columns name a type alias in `typeRef` no longer loads. Run `scripts/expand-type-aliases/expand-type-aliases.ts` from the project root, then re-emit the contract, then run `prisma db sign` against every database. The script writes each alias's parameters into the columns typed by it, in every stored contract, migration snapshots and the emitted `contract.json` included, and refreshes every hash and reference that changes.
-    detection:
-      glob: "**/contract.json"
-      matches:
-        - '"typeRef"\s*:'
+- id: stored-contracts-expand-type-aliases
+  summary: |
+  A stored SQL contract whose columns name a type alias in `typeRef` no longer loads. Run `scripts/expand-type-aliases/expand-type-aliases.ts` from the project root, then re-emit the contract, then run `prisma db sign` against every database. The script writes each alias's parameters into the columns typed by it, in every stored contract, migration snapshots and the emitted `contract.json` included, and refreshes every hash and reference that changes.
+  detection:
+  glob: "**/contract.json"
+  matches:
+  - '"typeRef"\s*:'
     script: scripts/expand-type-aliases/expand-type-aliases.ts
-  - id: psl-alias-attributes
-    summary: |
-      No action is needed. A `types {}` alias in PSL may now carry `@default`, `@onCreate` and `@onUpdate`, and the targets contribute `temporal.CreatedAt` and `temporal.UpdatedAt`. Aliases are still valid PSL, so a `contract.prisma` that uses them does not change.
-  - id: ts-types-key-removed
-    summary: |
-      The TypeScript contract builder no longer takes a `types` key, and `field.namedType(...)` accepts only an enum. Replace `types: { X: type.Y(...) }` and each `field.namedType(types.X)` with a constant `const X = field.column(type.Y(...))` used as the field, and remove `types` from the object the contract returns. A `types` entry written `{ kind: 'codec-instance', codecId, typeParams }` becomes such a constant too if a field uses it; delete it if no field uses it. No `types` key stays in the contract. Re-emit the contract. The detection matches TypeScript files that call `field.namedType` with an alias or a string, or that return a `types` key from `defineContract`.
-    detection:
-      glob: "**/*.{ts,mts,cts,tsx}"
+- id: psl-alias-attributes
+  summary: |
+  No action is needed. A `types {}` alias in PSL may now carry `@default`, `@onCreate` and `@onUpdate`, and the targets contribute `temporal.CreatedAt` and `temporal.UpdatedAt`. Aliases are still valid PSL, so a `contract.prisma` that uses them does not change.
+- id: ts-types-key-removed
+  summary: |
+  The TypeScript contract builder no longer takes a `types` key, and `field.namedType(...)` accepts only an enum. Replace `types: { X: type.Y(...) }` and each `field.namedType(types.X)` with a constant `const X = field.column(type.Y(...))` used as the field, and remove `types` from the object the contract returns. A `types` entry written `{ kind: 'codec-instance', codecId, typeParams }` becomes such a constant too if a field uses it; delete it if no field uses it. No `types` key stays in the contract. Re-emit the contract. The detection matches TypeScript files that call `field.namedType` with an alias or a string, or that return a `types` key from `defineContract`.
+  detection:
+  glob: "**/*.{ts,mts,cts,tsx}"
+  matches:
+  - '(?<![\w$])field\.namedType\(\s*(?:types\b|[\x27"`])'
+  - '(?<![\s\S])(?=[\s\S]*\bdefineContract\()[\s\S]*(?<![\w$.\x27"])types\s*(?::(?!\s*(?:field\.|\{\s*codecTypes\b))|,|\})'
+- id: supabase-contract-expanded
+  summary: |
+  The `@prisma/orm-extension-supabase` contract no longer stores its nine type aliases, so the Supabase space's storage hash changes. Run `prisma db sign` against every database after upgrading.
+  detection:
+  glob: "**/package.json"
+  matches:
+  - '"@prisma/orm-extension-supabase"'
+- id: engine-pin-moves-to-0-9-0
+  summary: |
+  The toolchain now requires `@prisma/cli-engine@0.9.0` (up from 0.7.0). A project that depends on `@prisma/cli-engine` itself must move to `0.9.0`.
+  detection:
+  glob: "**/package.json"
+  matches:
+  - '"@prisma/cli-engine":\s*"[^"]*(?<![\d.])0\.[0-8](?!\d)'
+- id: piped-output-needs-json
+  summary: |
+  A piped Prisma ORM command no longer prints JSON. Without `--json`, stdout receives the command's plain data lines, such as one tab-separated line per migration. A script that reads JSON from `prisma contract …`, `prisma db …`, `prisma migration …` or `prisma orm init` must pass `--json`.
+- id: access-changes-rename
+  summary: |
+  `accessWidening` is renamed `accessChanges`, because it also lists changes that do not widen access. The `db update --dry-run --json` output key and `DbUpdateSuccess.accessWidening` become `accessChanges`, and the `executeDbUpdate` and control client `dbUpdate` option `acceptAccessWidening` becomes `acceptAccessChanges`. There is no alias for the old names.
+  detection:
+  glob: "**/*.{ts,tsx,mts,cts,js,mjs,cjs,sh,bash,yml,yaml}"
+  matches:
+  - '(?<![\w$])(?:acceptAccessWidening|accessWidening)(?![\w$])'
+- id: removed-namespace-questions
+  summary: |
+  On Postgres, when the contract no longer declares a namespace the database's contract declared, `migration plan` and `db update` plan to drop its tables, asking about each model, and then the schema. Before, those tables were left in place without a word. If the namespace was renamed, say so with `--rename <old namespace>:<new namespace>`, which renames the schema and keeps every row. Answer with `--delete <namespace>` to let the tables go, or keep a model by moving it with `--rename <namespace>.<Model>:<other namespace>.<Model>`.
+- id: schema-verification-failed-schema-issues
+  summary: |
+  The `CONTRACT.SCHEMA_VERIFICATION_FAILED` diagnostic of `db verify --json` and `db sign --json` carries the schema differences in `meta.schemaIssues`, as issue objects, instead of `meta.issues`, as label strings. Code that reads `meta.issues` from that diagnostic reads `meta.schemaIssues` instead.
+  detection:
+  glob: "**/*.{ts,tsx,mts,cts,js,mjs,cjs}"
+  matches:
+  - '(?<![\s\S])(?=[\s\S]*(?:\bdb (?:verify|sign)\b|SCHEMA_VERIFICATION_FAILED))[\s\S]*\bmeta(?:\?\.|\.|\?\.\[|\[)(?:issues\b|[''"]issues[''"]\])'
+- id: check-expectation
+  summary: |
+  A migration check that expects one object to be absent or present can now say so in an optional `expectation` field, and a failed precheck's message then names the object: `That check failed: the database already has index "Item_state_idx".` instead of `That check failed on this database.` Checks written without it keep working and keep the generic sentence.
+  detection:
+  glob: "**/ops.json"
+  matches:
+  - '(?:\{\s*"description": "(?:[^"\\]|\\.)_",\s_"sql": "(?:SELECT (?:NOT )?EXISTS \(SELECT 1 AS \\"one\\" FROM \\"(?:information_schema\\"\.\\"columns|pg_extension|pg_constraint|pg_class|pg_policies|pg_type|pg_enum|pg_indexes|pg_namespace)\\"(?: AS \\"\w+\\")?(?: INNER JOIN \\"pg_(?:namespace|type|class)\\" AS \\"\w+\\" ON \\"\w+\\"\.\\"\w+\\" = \\"\w+\\"\.\\"\w+\\")* WHERE (?:[^"\\]|\\"(?:table_schema|table_name|column_name|extname|conname|connamespace|conrelid|nspname|schemaname|tablename|policyname|indexname|typname|typnamespace|enumlabel|enumtypid|relname|relkind|oid|type|name|c|n|t|e|i|p)\\")*?\) AS \\"result\\"|SELECT \(to_regclass\(\$\d+\)\) IS (?:NOT )?NULL AS \\"result\\"|SELECT COUNT\(\*\) (?:= 0|> 0) AS \\"result\\" FROM (?:\\"sqlite_master\\"|pragma_table_info\([^)"]*\)|pragma_index_list\([^)"]*\)) WHERE (?:[^"\\]|\\"(?:table_schema|table_name|column_name|extname|conname|connamespace|conrelid|nspname|schemaname|tablename|policyname|indexname|typname|typnamespace|enumlabel|enumtypid|relname|relkind|oid|type|name|c|n|t|e|i|p)\\")*?)"(?:,\s*"params": \[[^\]]_\])?\s_\}|"source": \{\s*"kind": "list(?:Indexes|Collections)"(?:,\s*"collection": "(?:[^"\\]|\\.)_")?\s_\},\s*"filter": \{\s*"kind": "field",(?:[^{}]|\{[^{}]_\})_\},\s*"expect": "(?:exists|notExists)"\s*\})'
+- id: check-expectation-raw-sql
+  summary: |
+  A precheck or postcheck you write by hand in a `rawSql` operation of a `migration.ts` can carry `expectation`, `{ expects: 'absent' | 'present', object }`, so a failure of it names the object. Add it where the check asks whether one object exists, then run `node migration.ts` for a migration no database has applied yet.
+  detection:
+  glob: "**/migration.ts"
+  matches:
+  - '\brawSql\(\{[\s\S]_?\b(?:precheck|postcheck):\s_\[(?:\s*\{(?:[^{}]|\{[^{}]_\})_\},)_?\s_\{[^{}]*\}'
+- id: mongo-quoted-enum-members
+  summary: |
+  A MongoDB PSL `enum` member is now read in the syntax of its codec's data type, as on SQL, and a quoted member is text. A quoted member on a type that does not take text is refused with `PSL_VALUE_TYPE_INCOMPATIBLE` at the member: write a Double's `"NaN"`, `"Infinity"` and `"-Infinity"` and an Int64's or Decimal128's number unquoted (`Unknown = NaN`, `Big = 9007199254740993`, `Half = 0.5`), a Date member as `` date`2024-01-01T00:00:00Z` `` and a Binary member as `` binary`aGVsbG8=` ``. A Decimal128 `"-0"` cannot be written in PSL any more, because `-0` is an int32 zero: write `0`, or declare the enum in TypeScript. The detection matches an enum on one of those codecs with a quoted member.
+  detection:
+  glob: "**/_.prisma"
       matches:
-        - '(?<![\w$])field\.namedType\(\s*(?:types\b|[\x27"`])'
-        - '(?<![\s\S])(?=[\s\S]*\bdefineContract\()[\s\S]*(?<![\w$.\x27"])types\s*(?::(?!\s*(?:field\.|\{\s*codecTypes\b))|,|\})'
-  - id: supabase-contract-expanded
-    summary: |
-      The `@prisma/orm-extension-supabase` contract no longer stores its nine type aliases, so the Supabase space's storage hash changes. Run `prisma db sign` against every database after upgrading.
-    detection:
-      glob: "**/package.json"
+        - 'enum\s+\w+\s_\{(?=[^}]_@@type\(\s_"mongo/(?:double|int64|int64Number|decimal128|date|binary)@1"\s*\))[^}]_\n\s_\w+\s*=\s*"'
+- id: mongo-integer-enum-members-with-a-fraction
+  summary: |
+  A MongoDB PSL number with a fraction, such as `1.0`, is now a Decimal128 value, and no integer type casts from Decimal128, so an Int32 or Int64 member written with a fraction is refused with `PSL_VALUE_TYPE_INCOMPATIBLE` (`Expected a number that mongo/int32 can hold; got mongo/decimal128`). Write the whole number, `One = 1`. The detection matches an Int32 or Int64 enum with a member written with a fraction.
+  detection:
+  glob: "**/_.prisma"
       matches:
-        - '"@prisma/orm-extension-supabase"'
-  - id: engine-pin-moves-to-0-9-0
-    summary: |
-      The toolchain now requires `@prisma/cli-engine@0.9.0` (up from 0.7.0). A project that depends on `@prisma/cli-engine` itself must move to `0.9.0`.
-    detection:
-      glob: "**/package.json"
+        - 'enum\s+\w+\s_\{(?=[^}]_@@type\(\s_"mongo/(?:int32|int64|int64Number)@1"\s*\))[^}]_\n\s_\w+\s*=\s*-?\d+\.\d'
+- id: discriminator-optional-or-list
+  summary: |
+  A `@@discriminator` field must be required and hold one value, in SQL and MongoDB schemas alike. An optional field is refused with `Discriminator field "<field>" on model "<Model>" must be required, but it is optional. Remove the "?"`, and a list with `... must hold one value, but it is a list. Remove the "[]"`, both `PSL_INVALID_ATTRIBUTE_ARGUMENT`. Make the field required and single: a document or row without the value has no variant. The detection matches a model whose `@@discriminator` names a field declared with `?` or `[]`.
+  detection:
+  glob: "**/_.prisma"
       matches:
-        - '"@prisma/cli-engine":\s*"[^"]*(?<![\d.])0\.[0-8](?!\d)'
-  - id: piped-output-needs-json
-    summary: |
-      A piped Prisma ORM command no longer prints JSON. Without `--json`, stdout receives the command's plain data lines, such as one tab-separated line per migration. A script that reads JSON from `prisma contract …`, `prisma db …`, `prisma migration …` or `prisma orm init` must pass `--json`.
-  - id: access-changes-rename
-    summary: |
-      `accessWidening` is renamed `accessChanges`, because it also lists changes that do not widen access. The `db update --dry-run --json` output key and `DbUpdateSuccess.accessWidening` become `accessChanges`, and the `executeDbUpdate` and control client `dbUpdate` option `acceptAccessWidening` becomes `acceptAccessChanges`. There is no alias for the old names.
-    detection:
-      glob: "**/*.{ts,tsx,mts,cts,js,mjs,cjs,sh,bash,yml,yaml}"
-      matches:
-        - '(?<![\w$])(?:acceptAccessWidening|accessWidening)(?![\w$])'
-  - id: removed-namespace-questions
-    summary: |
-      On Postgres, when the contract no longer declares a namespace the database's contract declared, `migration plan` and `db update` plan to drop its tables, asking about each model, and then the schema. Before, those tables were left in place without a word. If the namespace was renamed, say so with `--rename <old namespace>:<new namespace>`, which renames the schema and keeps every row. Answer with `--delete <namespace>` to let the tables go, or keep a model by moving it with `--rename <namespace>.<Model>:<other namespace>.<Model>`.
-  - id: schema-verification-failed-schema-issues
-    summary: |
-      The `CONTRACT.SCHEMA_VERIFICATION_FAILED` diagnostic of `db verify --json` and `db sign --json` carries the schema differences in `meta.schemaIssues`, as issue objects, instead of `meta.issues`, as label strings. Code that reads `meta.issues` from that diagnostic reads `meta.schemaIssues` instead.
-    detection:
-      glob: "**/*.{ts,tsx,mts,cts,js,mjs,cjs}"
-      matches:
-        - '(?<![\s\S])(?=[\s\S]*(?:\bdb (?:verify|sign)\b|SCHEMA_VERIFICATION_FAILED))[\s\S]*\bmeta(?:\?\.|\.|\?\.\[|\[)(?:issues\b|[''"]issues[''"]\])'
-  - id: check-expectation
-    summary: |
-      A migration check that expects one object to be absent or present can now say so in an optional `expectation` field, and a failed precheck's message then names the object: `That check failed: the database already has index "Item_state_idx".` instead of `That check failed on this database.` Checks written without it keep working and keep the generic sentence.
-    detection:
-      glob: "**/ops.json"
-      matches:
-        - '(?:\{\s*"description": "(?:[^"\\]|\\.)*",\s*"sql": "(?:SELECT (?:NOT )?EXISTS \(SELECT 1 AS \\"one\\" FROM \\"(?:information_schema\\"\.\\"columns|pg_extension|pg_constraint|pg_class|pg_policies|pg_type|pg_enum|pg_indexes|pg_namespace)\\"(?: AS \\"\w+\\")?(?: INNER JOIN \\"pg_(?:namespace|type|class)\\" AS \\"\w+\\" ON \\"\w+\\"\.\\"\w+\\" = \\"\w+\\"\.\\"\w+\\")* WHERE (?:[^"\\]|\\"(?:table_schema|table_name|column_name|extname|conname|connamespace|conrelid|nspname|schemaname|tablename|policyname|indexname|typname|typnamespace|enumlabel|enumtypid|relname|relkind|oid|type|name|c|n|t|e|i|p)\\")*?\) AS \\"result\\"|SELECT \(to_regclass\(\$\d+\)\) IS (?:NOT )?NULL AS \\"result\\"|SELECT COUNT\(\*\) (?:= 0|> 0) AS \\"result\\" FROM (?:\\"sqlite_master\\"|pragma_table_info\([^)"]*\)|pragma_index_list\([^)"]*\)) WHERE (?:[^"\\]|\\"(?:table_schema|table_name|column_name|extname|conname|connamespace|conrelid|nspname|schemaname|tablename|policyname|indexname|typname|typnamespace|enumlabel|enumtypid|relname|relkind|oid|type|name|c|n|t|e|i|p)\\")*?)"(?:,\s*"params": \[[^\]]*\])?\s*\}|"source": \{\s*"kind": "list(?:Indexes|Collections)"(?:,\s*"collection": "(?:[^"\\]|\\.)*")?\s*\},\s*"filter": \{\s*"kind": "field",(?:[^{}]|\{[^{}]*\})*\},\s*"expect": "(?:exists|notExists)"\s*\})'
-  - id: check-expectation-raw-sql
-    summary: |
-      A precheck or postcheck you write by hand in a `rawSql` operation of a `migration.ts` can carry `expectation`, `{ expects: 'absent' | 'present', object }`, so a failure of it names the object. Add it where the check asks whether one object exists, then run `node migration.ts` for a migration no database has applied yet.
-    detection:
-      glob: "**/migration.ts"
-      matches:
-        - '\brawSql\(\{[\s\S]*?\b(?:precheck|postcheck):\s*\[(?:\s*\{(?:[^{}]|\{[^{}]*\})*\},)*?\s*\{[^{}]*\}'
-  - id: mongo-quoted-enum-members
-    summary: |
-      A MongoDB PSL `enum` member is now read in the syntax of its codec's data type, as on SQL, and a quoted member is text. A quoted member on a type that does not take text is refused with `PSL_VALUE_TYPE_INCOMPATIBLE` at the member: write a Double's `"NaN"`, `"Infinity"` and `"-Infinity"` and an Int64's or Decimal128's number unquoted (`Unknown = NaN`, `Big = 9007199254740993`, `Half = 0.5`), a Date member as `` date`2024-01-01T00:00:00Z` `` and a Binary member as `` binary`aGVsbG8=` ``. A Decimal128 `"-0"` cannot be written in PSL any more, because `-0` is an int32 zero: write `0`, or declare the enum in TypeScript. The detection matches an enum on one of those codecs with a quoted member.
-    detection:
-      glob: "**/*.prisma"
-      matches:
-        - 'enum\s+\w+\s*\{(?=[^}]*@@type\(\s*"mongo/(?:double|int64|int64Number|decimal128|date|binary)@1"\s*\))[^}]*\n\s*\w+\s*=\s*"'
-  - id: mongo-integer-enum-members-with-a-fraction
-    summary: |
-      A MongoDB PSL number with a fraction, such as `1.0`, is now a Decimal128 value, and no integer type casts from Decimal128, so an Int32 or Int64 member written with a fraction is refused with `PSL_VALUE_TYPE_INCOMPATIBLE` (`Expected a number that mongo/int32 can hold; got mongo/decimal128`). Write the whole number, `One = 1`. The detection matches an Int32 or Int64 enum with a member written with a fraction.
-    detection:
-      glob: "**/*.prisma"
-      matches:
-        - 'enum\s+\w+\s*\{(?=[^}]*@@type\(\s*"mongo/(?:int32|int64|int64Number)@1"\s*\))[^}]*\n\s*\w+\s*=\s*-?\d+\.\d'
-  - id: discriminator-optional-or-list
-    summary: |
-      A `@@discriminator` field must be required and hold one value, in SQL and MongoDB schemas alike. An optional field is refused with `Discriminator field "<field>" on model "<Model>" must be required, but it is optional. Remove the "?"`, and a list with `... must hold one value, but it is a list. Remove the "[]"`, both `PSL_INVALID_ATTRIBUTE_ARGUMENT`. Make the field required and single: a document or row without the value has no variant. The detection matches a model whose `@@discriminator` names a field declared with `?` or `[]`.
-    detection:
-      glob: "**/*.prisma"
-      matches:
-        - 'model\s+\w+\s*\{(?=[^}]*@@discriminator\(\s*(\w+)\s*\))[^}]*\n\s*\1\s+[\w.]+(?:\?|\[\])'
-  - id: discriminator-base-value-not-a-member
-    summary: |
-      When an enum types a `@@discriminator` field, each `@@base` value must be one of the enum's members, as the field stores them. A value that is not is refused at the value with `PSL_INVALID_ATTRIBUTE_ARGUMENT`: `Model "<Variant>" declares @@base value "<value>", which is not a member of enum "<Enum>", the type of discriminator field "<Model>.<field>". Write one of: ...`. Write a member's stored value, or add the value to the enum. The detection matches a schema that declares both a `@@discriminator` and an `enum`; check each `@@base` value of a discriminator typed by an enum.
-    detection:
-      glob: "**/*.prisma"
-      matches:
-        - '(?<![\s\S])(?=[\s\S]*@@discriminator\()(?=[\s\S]*(?:^|\n)\s*enum\s+\w+\s*\{)[\s\S]*@@base\('
-  - id: psl-value-refused-code
-    summary: |
-      An enum member or `@@base` value that the receiving data type or codec refuses now reports `PSL_VALUE_REFUSED`, in SQL and MongoDB schemas. SQL reported `PSL_INVALID_DEFAULT_LITERAL` for these, and MongoDB reported `PSL_EXTENSION_INVALID_VALUE` (`was rejected by codec`) for a member. A member written in a form its type does not take reports `PSL_VALUE_TYPE_INCOMPATIBLE`, and text an entry or a cast cannot read reports `PSL_INVALID_LITERAL`. Update code or tests that match these codes or messages. A MongoDB discriminator that is not text now says `must be text, such as String`, as SQL does, in place of `must be of type String`, and a type alias of `String` is accepted as a discriminator. The detection matches code that names the old member code or messages.
-    detection:
-      glob: "**/*.{ts,mts,cts,tsx,js,mjs,cjs}"
+        - 'model\s+\w+\s_\{(?=[^}]_@@discriminator\(\s_(\w+)\s*\))[^}]_\n\s_\1\s+[\w.]+(?:\?|\[\])'
+- id: discriminator-base-value-not-a-member
+  summary: |
+  When an enum types a `@@discriminator` field, each `@@base` value must be one of the enum's members, as the field stores them. A value that is not is refused at the value with `PSL_INVALID_ATTRIBUTE_ARGUMENT`: `Model "<Variant>" declares @@base value "<value>", which is not a member of enum "<Enum>", the type of discriminator field "<Model>.<field>". Write one of: ...`. Write a member's stored value, or add the value to the enum. The detection matches a schema that declares both a `@@discriminator` and an `enum`; check each `@@base` value of a discriminator typed by an enum.
+  detection:
+  glob: "**/*.prisma"
+  matches:
+  - '(?<![\s\S])(?=[\s\S]*@@discriminator\()(?=[\s\S]*(?:^|\n)\s*enum\s+\w+\s*\{)[\s\S]*@@base\('
+- id: psl-value-refused-code
+  summary: |
+  An enum member or `@@base` value that the receiving data type or codec refuses now reports `PSL_VALUE_REFUSED`, in SQL and MongoDB schemas. SQL reported `PSL_INVALID_DEFAULT_LITERAL` for these, and MongoDB reported `PSL_EXTENSION_INVALID_VALUE` (`was rejected by codec`) for a member. A member written in a form its type does not take reports `PSL_VALUE_TYPE_INCOMPATIBLE`, and text an entry or a cast cannot read reports `PSL_INVALID_LITERAL`. Update code or tests that match these codes or messages. A MongoDB discriminator that is not text now says `must be text, such as String`, as SQL does, in place of `must be of type String`, and a type alias of `String` is accepted as a discriminator. The detection matches code that names the old member code or messages.
+  detection:
+  glob: "**/_.{ts,mts,cts,tsx,js,mjs,cjs}"
       matches:
         - 'was rejected by codec \\?"mongo/'
         - 'must be of type String'
-        - '(?=[\s\S]*@@base\()[\s\S]*PSL_INVALID_DEFAULT_LITERAL'
-  - id: decimal128-spelling
-    summary: |
-      `mongo/decimal128` stores its values as MongoDB writes them: without leading zeros, keeping negative zero, and only a value a Decimal128 holds exactly. A `contract.json` that stores a Decimal128 value with leading zeros, such as `"007.5"`, is refused when it is loaded with `RUNTIME.DECODE_FAILED`, which names the value to store; emit the contract again. A TypeScript enum member such as `member('Half', '007.5')` is stored as `7.5`, so its contract gets a new hash on the next emit. A value with more than 34 significant digits, counting zeros after the decimal point, such as `1.000000000000000000000000000000000000`, is refused in PSL, TypeScript and `contract.json` instead of being rounded; write a value with at most 34 significant digits. The detection matches a Decimal128 value with leading zeros or more than 34 digits.
-    detection:
-      glob: "**/*.{json,ts,mts,cts,tsx,prisma}"
+        - '(?=[\s\S]_@@base\()[\s\S]*PSL_INVALID_DEFAULT_LITERAL'
+- id: decimal128-spelling
+  summary: |
+  `mongo/decimal128` stores its values as MongoDB writes them: without leading zeros, keeping negative zero, and only a value a Decimal128 holds exactly. A `contract.json` that stores a Decimal128 value with leading zeros, such as `"007.5"`, is refused when it is loaded with `RUNTIME.DECODE_FAILED`, which names the value to store; emit the contract again. A TypeScript enum member such as `member('Half', '007.5')` is stored as `7.5`, so its contract gets a new hash on the next emit. A value with more than 34 significant digits, counting zeros after the decimal point, such as `1.000000000000000000000000000000000000`, is refused in PSL, TypeScript and `contract.json` instead of being rounded; write a value with at most 34 significant digits. The detection matches a Decimal128 value with leading zeros or more than 34 digits.
+  detection:
+  glob: "**/_.{json,ts,mts,cts,tsx,prisma}"
       matches:
-        - 'mongo/decimal128@1[\s\S]*?(?:[=,(:]\s*["\x27`]?-?0\d|[=,(:]\s*["\x27`]?-?\d[\d.]{35,})'
-  - id: sql-builder-insert-required-columns
-    summary: |
-      A SQL builder insert, `db.sql.<namespace>.<table>.insert(rows)`, must now include every column that is not nullable and has no default. Leaving one out is a type error that names the column, and so is a value typed `T | undefined` for such a column. Add a real value, narrowed to `T`.
-    detection:
-      glob: "**/*.{ts,tsx,mts,cts}"
-      matches:
-        - '\.insert\('
-  - id: orm-create-on-update-only-field
-    summary: |
-      In ORM `create` and `upsert`, a field that is not nullable, has no default and generates a value only on update is now required. That is a field with `@onUpdate(...)` and no `@onCreate(...)`, a temporal preset with only its update phase such as `temporal.timestamptz(onUpdate: now)` or `field.temporal.timestamptz(undefined, undefined, 'now')`, or a TypeScript field with `.onUpdate(...)` and no `.onCreate(...)`. Pass a value for it on create, or make it generate on create too.
-    detection:
-      glob: "**/*.{prisma,ts}"
+        - 'mongo/decimal128@1[\s\S]_?(?:[=,(:]\s*["\x27`]?-?0\d|[=,(:]\s*["\x27`]?-?\d[\d.]{35,})'
+- id: sql-builder-insert-required-columns
+  summary: |
+  A SQL builder insert, `db.sql.<namespace>.<table>.insert(rows)`, must now include every column that is not nullable and has no default. Leaving one out is a type error that names the column, and so is a value typed `T | undefined` for such a column. Add a real value, narrowed to `T`.
+  detection:
+  glob: "**/*.{ts,tsx,mts,cts}"
+  matches:
+  - '\.insert\('
+- id: orm-create-on-update-only-field
+  summary: |
+  In ORM `create` and `upsert`, a field that is not nullable, has no default and generates a value only on update is now required. That is a field with `@onUpdate(...)` and no `@onCreate(...)`, a temporal preset with only its update phase such as `temporal.timestamptz(onUpdate: now)` or `field.temporal.timestamptz(undefined, undefined, 'now')`, or a TypeScript field with `.onUpdate(...)` and no `.onCreate(...)`. Pass a value for it on create, or make it generate on create too.
+  detection:
+  glob: "**/*.{prisma,ts}"
       matches:
         - '@onUpdate\('
         - 'onUpdate:\s*now'
-        - '\.onUpdate\('
-        - '\.temporal\.\w+\([^)]*,\s*[''"]now[''"]'
-  - id: supabase-for-role-replaces-with-role-methods
-    summary: |
-      `SupabaseRuntime` no longer has `queryWithRole`, `executeWithRole`, `preparedQueryWithRole` or `preparedExecuteWithRole`, and `SupabaseRuntimeImpl` no longer has `roleActivitySource`. Call `runtime.forRole(binding)` once and use its members: `runtime.queryWithRole(plan, binding, options)` becomes `runtime.forRole(binding).query(plan, options)`, `executeWithRole` becomes `forRole(binding).execute`, and a prepared statement runs on the role with `statement.query(runtime.forRole(binding), params)` or `statement.execute(runtime.forRole(binding), params)`. The detection matches files that call one of the removed methods.
-    detection:
-      glob: "**/*.{ts,mts,cts,tsx,js,mjs,cjs}"
+  - '\.onUpdate\('
+  - '\.temporal\.\w+\([^)]_,\s_[''"]now[''"]'
+- id: supabase-for-role-replaces-with-role-methods
+  summary: |
+  `SupabaseRuntime` no longer has `queryWithRole`, `executeWithRole`, `preparedQueryWithRole` or `preparedExecuteWithRole`, and `SupabaseRuntimeImpl` no longer has `roleActivitySource`. Call `runtime.forRole(binding)` once and use its members: `runtime.queryWithRole(plan, binding, options)` becomes `runtime.forRole(binding).query(plan, options)`, `executeWithRole` becomes `forRole(binding).execute`, and a prepared statement runs on the role with `statement.query(runtime.forRole(binding), params)` or `statement.execute(runtime.forRole(binding), params)`. The detection matches files that call one of the removed methods.
+  detection:
+  glob: "**/*.{ts,mts,cts,tsx,js,mjs,cjs}"
+  matches:
+  - '\.(?:queryWithRole|executeWithRole|preparedQueryWithRole|preparedExecuteWithRole|roleActivitySource)\('
+- id: supabase-role-types-gain-members
+  summary: |
+  Three public Supabase types require new members, so a test double or hand-built object typed with them stops compiling. `RoleBoundDb` and `ServiceRoleDb` gain `enums` and `nativeEnums`. `SupabaseTransactionContext` is now `PostgresTransactionContext`, so it gains `enums` and `nativeEnums` too. `SupabaseRuntime` requires `forRole(binding)`, which returns a `SupabaseRoleScope` (`query`, `execute`, the prepared-statement operations and `connection`), in place of the four removed `*WithRole` methods. Add the members to each double: take `enums` and `nativeEnums` from `postgresStatic({ contract })` of `@prisma/orm-postgres/static`, or from a role-bound client. The detection matches files that name one of these types.
+  detection:
+  glob: "**/*.{ts,mts,cts,tsx}"
+  matches:
+  - '(?<![\w$])(?:RoleBoundDb|ServiceRoleDb|SupabaseTransactionContext|SupabaseRuntime)(?![\w$])'
+- id: supabase-pg-takes-a-pool
+  summary: |
+  The `pg` option of `supabase()` takes a `pg.Pool` only. A `pg.Client` is a type error and fails at `supabase()` with `SUPABASE.CONFIG_INVALID`. Replace `pg: new Client(...)` with `pg: new Pool(...)` built from the same settings, or pass `url`. The detection matches every `supabase()` call that passes `pg`; leave a call that already passes a `pg.Pool` as it is.
+  detection:
+  glob: "**/_.{ts,mts,cts,tsx,js,mjs,cjs}"
       matches:
-        - '\.(?:queryWithRole|executeWithRole|preparedQueryWithRole|preparedExecuteWithRole|roleActivitySource)\('
-  - id: supabase-role-types-gain-members
-    summary: |
-      Three public Supabase types require new members, so a test double or hand-built object typed with them stops compiling. `RoleBoundDb` and `ServiceRoleDb` gain `enums` and `nativeEnums`. `SupabaseTransactionContext` is now `PostgresTransactionContext`, so it gains `enums` and `nativeEnums` too. `SupabaseRuntime` requires `forRole(binding)`, which returns a `SupabaseRoleScope` (`query`, `execute`, the prepared-statement operations and `connection`), in place of the four removed `*WithRole` methods. Add the members to each double: take `enums` and `nativeEnums` from `postgresStatic({ contract })` of `@prisma/orm-postgres/static`, or from a role-bound client. The detection matches files that name one of these types.
-    detection:
-      glob: "**/*.{ts,mts,cts,tsx}"
-      matches:
-        - '(?<![\w$])(?:RoleBoundDb|ServiceRoleDb|SupabaseTransactionContext|SupabaseRuntime)(?![\w$])'
-  - id: supabase-pg-takes-a-pool
-    summary: |
-      The `pg` option of `supabase()` takes a `pg.Pool` only. A `pg.Client` is a type error and fails at `supabase()` with `SUPABASE.CONFIG_INVALID`. Replace `pg: new Client(...)` with `pg: new Pool(...)` built from the same settings, or pass `url`. The detection matches every `supabase()` call that passes `pg`; leave a call that already passes a `pg.Pool` as it is.
-    detection:
-      glob: "**/*.{ts,mts,cts,tsx,js,mjs,cjs}"
-      matches:
-        - '(?<![\w$.])supabase(?:<[^>]*>)?\(\s*\{(?:[^{}]|\{[^{}]*\})*?(?<![\w$.])pg\s*[:,}]'
-  - id: supabase-close-waits-for-work
-    summary: |
-      `db.close()` on a Supabase client now refuses new work at once on every role-bound client and on `.supabase`, with `DRIVER.NOT_CONNECTED` "Runtime is closed", and waits for work already running, open role transactions included, before it ends the pool. With a pool you passed as `pg`, a query after `close()` used to throw at the call; its promise now rejects instead. Await every role transaction before `close()`, or `close()` waits for it.
-  - id: contract-artifacts-restamp
-    summary: |
-      An extension that writes its own package version into the contracts it emits, such as the Supabase extension, now writes 8.0.0-rc.20. Run `contract emit` once after upgrading so the emitted `contract.json` and `contract.d.ts` match the installed extension.
-    detection:
-      glob: "**/contract.json"
-      contains:
-        - '"version": "8.0.0-rc.19"'
+        - '(?<![\w$.])supabase(?:<[^>]_>)?\(\s*\{(?:[^{}]|\{[^{}]_\})_?(?<![\w$.])pg\s*[:,}]'
+- id: supabase-close-waits-for-work
+  summary: |
+  `db.close()` on a Supabase client now refuses new work at once on every role-bound client and on `.supabase`, with `DRIVER.NOT_CONNECTED` "Runtime is closed", and waits for work already running, open role transactions included, before it ends the pool. With a pool you passed as `pg`, a query after `close()` used to throw at the call; its promise now rejects instead. Await every role transaction before `close()`, or `close()` waits for it.
+- id: contract-artifacts-restamp
+  summary: |
+  An extension that writes its own package version into the contracts it emits, such as the Supabase extension, now writes 8.0.0-rc.20. Run `contract emit` once after upgrading so the emitted `contract.json` and `contract.d.ts` match the installed extension.
+  detection:
+  glob: "**/contract.json"
+  contains:
+  - '"version": "8.0.0-rc.19"'
+
 ---
 
 # 8.0.0-rc.19 → 8.0.0-rc.20 — User upgrade instructions
@@ -250,25 +252,25 @@ Write an alias as a constant field builder and use it as the field:
 
 ```ts
 // Before
-({ field, model, type }) => {
-  const types = { Embedding1536: type.pgvector.Vector(1536) } as const;
-  const Post = model('Post', {
-    fields: {
-      embedding: field.namedType(types.Embedding1536).optional(),
-    },
-  });
-  return { types, models: { Post } };
+;({ field, model, type }) => {
+	const types = { Embedding1536: type.pgvector.Vector(1536) } as const
+	const Post = model('Post', {
+		fields: {
+			embedding: field.namedType(types.Embedding1536).optional(),
+		},
+	})
+	return { types, models: { Post } }
 }
 
 // After
-({ field, model, type }) => {
-  const Embedding1536 = field.column(type.pgvector.Vector(1536));
-  const Post = model('Post', {
-    fields: {
-      embedding: Embedding1536.optional(),
-    },
-  });
-  return { models: { Post } };
+;({ field, model, type }) => {
+	const Embedding1536 = field.column(type.pgvector.Vector(1536))
+	const Post = model('Post', {
+		fields: {
+			embedding: Embedding1536.optional(),
+		},
+	})
+	return { models: { Post } }
 }
 ```
 
@@ -323,12 +325,24 @@ A script that only needs a list or a value can read the data lines instead. Fiel
 
 ```ts
 // Before
-const result = await client.dbUpdate({ contract, mode: 'apply', migrationsDir, acceptAccessWidening: true, answerQuestions });
-if (result.ok) console.log(result.value.accessWidening);
+const result = await client.dbUpdate({
+	contract,
+	mode: 'apply',
+	migrationsDir,
+	acceptAccessWidening: true,
+	answerQuestions,
+})
+if (result.ok) console.log(result.value.accessWidening)
 
 // After
-const result = await client.dbUpdate({ contract, mode: 'apply', migrationsDir, acceptAccessChanges: true, answerQuestions });
-if (result.ok) console.log(result.value.accessChanges);
+const result = await client.dbUpdate({
+	contract,
+	mode: 'apply',
+	migrationsDir,
+	acceptAccessChanges: true,
+	answerQuestions,
+})
+if (result.ok) console.log(result.value.accessChanges)
 ```
 
 A script that reads `prisma db update --dry-run --json` reads `accessChanges` in place of `accessWidening`. The output is one JSON object per line, and the result is in the last one:
@@ -371,12 +385,17 @@ In code that reads the diagnostic, read `meta.schemaIssues` where it read `meta.
 
 ```typescript
 // before
-const labels: string[] = diagnostic.meta.issues;
+const labels: string[] = diagnostic.meta.issues
 // after
 const labels = diagnostic.meta.schemaIssues.map((issue) => {
-  const outcome = issue.actual === undefined ? 'missing' : issue.expected === undefined ? 'extra' : 'mismatch';
-  return `${outcome}: ${issue.path.join('/')}`;
-});
+	const outcome =
+		issue.actual === undefined
+			? 'missing'
+			: issue.expected === undefined
+				? 'extra'
+				: 'mismatch'
+	return `${outcome}: ${issue.path.join('/')}`
+})
 ```
 
 The `why` of the diagnostic still lists every difference as text.
@@ -397,14 +416,14 @@ In your app's migrations, a check you write in a `rawSql` operation can carry it
 
 ```typescript
 rawSql({
-  // ...
-  precheck: [
-    {
-      description: 'verify extension "vector" is not already enabled',
-      sql: "SELECT NOT EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'vector')",
-      expectation: { expects: 'absent', object: 'extension "vector"' },
-    },
-  ],
+	// ...
+	precheck: [
+		{
+			description: 'verify extension "vector" is not already enabled',
+			sql: "SELECT NOT EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'vector')",
+			expectation: { expects: 'absent', object: 'extension "vector"' },
+		},
+	],
 })
 ```
 
@@ -443,10 +462,12 @@ The SQL builder's `insert` used to accept a row that left out any column. A row 
 
 ```typescript
 // User.displayName is `String` with no default
-db.sql.public.user.insert([{ email: 'admin@example.com', kind: 'admin' }]);
+db.sql.public.user.insert([{ email: 'admin@example.com', kind: 'admin' }])
 // error: Property 'displayName' is missing
 
-db.sql.public.user.insert([{ email: 'admin@example.com', kind: 'admin', displayName: 'Admin' }]);
+db.sql.public.user.insert([
+	{ email: 'admin@example.com', kind: 'admin', displayName: 'Admin' },
+])
 ```
 
 A column is still optional when it is nullable, when it has a default (`@default(...)`, including `now()` and `autoincrement()`), or when the client generates its value on create with `@onCreate(...)` or a preset that generates on create. Rows in one `insert` call are checked one by one, so they may set different optional columns.
@@ -461,40 +482,46 @@ A field generates its value on update only when it has `@onUpdate(...)` without 
 
 `SupabaseRuntime.forRole(binding)` returns a `SupabaseRoleScope`, the runtime operations under one role: `query`, `execute`, the prepared-statement operations and `connection`. Run a transaction under the role with `withTransaction(runtime.forRole(binding), fn)`.
 
-| Type | New required members |
-| --- | --- |
-| `RoleBoundDb`, `ServiceRoleDb` | `enums`, `nativeEnums` |
-| `SupabaseTransactionContext` | `enums`, `nativeEnums` (it is now `PostgresTransactionContext`) |
-| `SupabaseRuntime` | `forRole(binding)`, in place of the four `*WithRole` methods |
+| Type                           | New required members                                            |
+| ------------------------------ | --------------------------------------------------------------- |
+| `RoleBoundDb`, `ServiceRoleDb` | `enums`, `nativeEnums`                                          |
+| `SupabaseTransactionContext`   | `enums`, `nativeEnums` (it is now `PostgresTransactionContext`) |
+| `SupabaseRuntime`              | `forRole(binding)`, in place of the four `*WithRole` methods    |
 
 ```ts
 // Before
-const rows = await runtime.queryWithRole(plan, { role: 'anon' }).toArray();
-const stats = await runtime.executeWithRole(plan, { role: 'anon' });
-const named = await runtime.preparedQueryWithRole(statement, params, { role: 'anon' }).toArray();
+const rows = await runtime.queryWithRole(plan, { role: 'anon' }).toArray()
+const stats = await runtime.executeWithRole(plan, { role: 'anon' })
+const named = await runtime
+	.preparedQueryWithRole(statement, params, { role: 'anon' })
+	.toArray()
 
 // After
-const anon = runtime.forRole({ role: 'anon' });
-const rows = await anon.query(plan).toArray();
-const stats = await anon.execute(plan);
-const named = await statement.query(anon, params).toArray();
+const anon = runtime.forRole({ role: 'anon' })
+const rows = await anon.query(plan).toArray()
+const stats = await anon.execute(plan)
+const named = await statement.query(anon, params).toArray()
 ```
 
 The `pg` option takes a `pg.Pool`:
 
 ```ts
 // Before
-const db = await supabase({ contract, pg: new Client({ connectionString }), jwtSecret });
+const db = await supabase({
+	contract,
+	pg: new Client({ connectionString }),
+	jwtSecret,
+})
 
 // After: close() does not end a pool you pass in, so keep it and end it at shutdown
-const pool = new Pool({ connectionString });
-const db = await supabase({ contract, pg: pool, jwtSecret });
+const pool = new Pool({ connectionString })
+const db = await supabase({ contract, pg: pool, jwtSecret })
 // ...
-await db.close();
-await pool.end();
+await db.close()
+await pool.end()
 
 // Or let Supabase create and end the pool
-const db = await supabase({ contract, url: connectionString, jwtSecret });
+const db = await supabase({ contract, url: connectionString, jwtSecret })
 ```
 
 ## `contract-artifacts-restamp`

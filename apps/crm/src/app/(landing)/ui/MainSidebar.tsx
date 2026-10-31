@@ -11,8 +11,8 @@ import MainSidebarContent from './MainSidebarContent'
 export default function MainSidebar(): JSX.Element {
 	const { open } = useSidebar()
 	return (
-		<Sidebar className="bg-sidebar py-4">
-			<SidebarHeader className="flex items-center justify-center pt-4">
+		<Sidebar className='bg-sidebar py-4'>
+			<SidebarHeader className='flex items-center justify-center pt-4'>
 				{open ? <Logo /> : <LogoIcon />}
 			</SidebarHeader>
 			<MainSidebarContent />

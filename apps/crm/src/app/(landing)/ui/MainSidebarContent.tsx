@@ -13,7 +13,7 @@ export default function MainSidebarContent(): JSX.Element {
 	return (
 		<SidebarContent>
 			<SidebarGroup>
-				<SidebarGroupLabel className="mt-4 text-center text-foreground text-xs">
+				<SidebarGroupLabel className='mt-4 text-center text-foreground text-xs'>
 					Menu
 				</SidebarGroupLabel>
 				<MainSidebarMenu items={items} />

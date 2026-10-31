@@ -26,9 +26,9 @@ export default function AuthButton({ provider }: AuthButtonProps): JSX.Element {
 			onClick={handleLogin}
 		>
 			{isGoogle ? (
-				<Google className="size-6" />
+				<Google className='size-6' />
 			) : (
-				<Apple className="size-6 text-background group-hover:text-foreground" />
+				<Apple className='size-6 text-background group-hover:text-foreground' />
 			)}
 			<span
 				className={

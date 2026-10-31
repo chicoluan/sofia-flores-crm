@@ -11,9 +11,9 @@ export default function DashboardLayout({
 	children,
 }: DashboardLayoutProps): JSX.Element {
 	return (
-		<Layout className="flex w-full">
+		<Layout className='flex w-full'>
 			<MainSidebar />
-			<SidebarInset className="flex w-full flex-1 flex-col">
+			<SidebarInset className='flex w-full flex-1 flex-col'>
 				{children}
 			</SidebarInset>
 		</Layout>

@@ -1,46 +1,47 @@
 ---
+
 from: "8.0.0-rc.17"
 to: "8.0.0-rc.18"
 changes:
-  - id: psl-default-namespace-duplicate-declaration
-    summary: |
-      A declaration at the top level of a PSL schema and one inside `namespace public { … }` (Postgres) now share one set of names. The same name declared both ways is `PSL_DUPLICATE_DECLARATION`, and so is a member of `namespace public { … }` named like a `types { }` binding or a namespace. Remove or rename one.
-    detection:
-      glob: "**/*.{prisma,psl}"
+- id: psl-default-namespace-duplicate-declaration
+  summary: |
+  A declaration at the top level of a PSL schema and one inside `namespace public { … }` (Postgres) now share one set of names. The same name declared both ways is `PSL_DUPLICATE_DECLARATION`, and so is a member of `namespace public { … }` named like a `types { }` binding or a namespace. Remove or rename one.
+  detection:
+  glob: "**/*.{prisma,psl}"
       matches:
         - '(^|\n)\s*namespace\s+public\s*\{'
-  - id: psl-default-namespace-name-is-reserved
-    summary: |
-      A top-level model, composite type, block or `types { }` binding cannot be named like the target's default namespace: `public` on Postgres; `unbound` or `__unbound__` on SQLite and MongoDB. This also holds for a schema read with `prisma7Schema(...)` or `prisma6Schema(...)`. Rename the declaration.
-    detection:
-      glob: "**/*.{prisma,psl}"
+- id: psl-default-namespace-name-is-reserved
+  summary: |
+  A top-level model, composite type, block or `types { }` binding cannot be named like the target's default namespace: `public` on Postgres; `unbound` or `__unbound__` on SQLite and MongoDB. This also holds for a schema read with `prisma7Schema(...)` or `prisma6Schema(...)`. Rename the declaration.
+  detection:
+  glob: "**/_.{prisma,psl}"
       matches:
-        - '(^|\n)[ \t]*(?!namespace[ \t])[A-Za-z_]\w*[ \t]+(public|unbound|__unbound__)[ \t]*\{'
-        - '(^|\n)\s*(public|unbound|__unbound__)\s*=\s*\S'
-  - id: raw-sql-is-a-sql-literal
-    summary: |
-      `@@index(where:)`, `@@index(expression:)`, `@@fullTextIndex(where:)`, `@@check(expression:)` and a policy's `using` and `withCheck` take `sql` literals. A quoted string there is refused with `PSL_VALUE_TYPE_INCOMPATIBLE`.
-    detection:
-      glob: "**/*.prisma"
+        - '(^|\n)[ \t]_(?!namespace[ \t])[A-Za-z_]\w*[ \t]+(public|unbound|**unbound**)[ \t]_\{'
+        - '(^|\n)\s_(public|unbound|**unbound**)\s*=\s*\S'
+- id: raw-sql-is-a-sql-literal
+  summary: |
+  `@@index(where:)`, `@@index(expression:)`, `@@fullTextIndex(where:)`, `@@check(expression:)` and a policy's `using` and `withCheck` take `sql` literals. A quoted string there is refused with `PSL_VALUE_TYPE_INCOMPATIBLE`.
+  detection:
+  glob: "**/_.prisma"
       matches:
-        - '\b(where|expression)\s*:\s*["'']'
-        - '^\s*(using|withCheck)\s*=\s*["'']'
+        - '\b(where|expression)\s_:\s*["'']'
+  - '^\s*(using|withCheck)\s*=\s*["'']'
     script: ./scripts/sql-expression-literals-psl/rewrite-sql-strings.mjs
-  - id: psl-storage-hash-may-change-once
-    summary: |
-      A raw SQL text with indentation shared by every line, blank lines at the start or end, a whitespace-only line or CRLF line breaks is stored as its canonical text once it is written as a `sql` literal, which changes the contract's storage hash once. For an index or check named with `map:`, `migration plan` then stops with a conflict and asks for a migration written with `migration new`. For a policy named with `@@map`, `migration plan` writes a migration that drops the policy and creates it again.
-    detection:
-      glob: "**/*.prisma"
+- id: psl-storage-hash-may-change-once
+  summary: |
+  A raw SQL text with indentation shared by every line, blank lines at the start or end, a whitespace-only line or CRLF line breaks is stored as its canonical text once it is written as a `sql` literal, which changes the contract's storage hash once. For an index or check named with `map:`, `migration plan` then stops with a conflict and asks for a migration written with `migration new`. For a policy named with `@@map`, `migration plan` writes a migration that drops the policy and creates it again.
+  detection:
+  glob: "**/_.prisma"
       matches:
-        - '\b(where|expression)\s*:\s*["'']'
-        - '^\s*(using|withCheck)\s*=\s*["'']'
-  - id: builder-raw-sql-is-a-sql-value
-    summary: |
-      In a TypeScript contract, `index({ where, expression })`, `check({ expression })`, `fullTextIndex({ where })` and the `using` and `withCheck` of `policySelect`, `policyInsert`, `policyUpdate`, `policyDelete` and `policyAll` take a `sql` value. A string there does not compile. Migration files keep strings.
-    detection:
-      glob: "**/*.{ts,mts,cts}"
-      matches:
-        - '(?<!readonly |''function'', )\b(where|expression|using|withCheck)\s*:\s*[''"\x60]'
+        - '\b(where|expression)\s_:\s*["'']'
+  - '^\s*(using|withCheck)\s*=\s*["'']'
+- id: builder-raw-sql-is-a-sql-value
+  summary: |
+  In a TypeScript contract, `index({ where, expression })`, `check({ expression })`, `fullTextIndex({ where })` and the `using` and `withCheck` of `policySelect`, `policyInsert`, `policyUpdate`, `policyDelete` and `policyAll` take a `sql` value. A string there does not compile. Migration files keep strings.
+  detection:
+  glob: "**/*.{ts,mts,cts}"
+  matches:
+  - '(?<!readonly |''function'', )\b(where|expression|using|withCheck)\s*:\s*[''"\x60]'
   - id: sql-tag-interpolates-sql-values
     summary: |
       The `sql` tag interpolates other `sql` values: `` sql`${owner} AND deleted_at IS NULL` ``. Compose predicates this way instead of joining strings.
@@ -97,172 +98,173 @@ changes:
     summary: |
       Code that reads a base model's `variants` from a contract finds the variant model at `variants[<value>].model`, where it used to find the value at `variants[<Model>].value`.
     detection:
-      glob: "**/*.{ts,tsx,mts,cts,js,mjs,cjs}"
-      matches:
-        - '(?<![\w$])variants(?![\w$])'
-  - id: prisma7-ignore-keeps-storage
-    summary: |
-      A Prisma 7 schema read with `prisma7Schema()` keeps the columns, tables, keys, indexes and foreign keys of `@ignore` fields and `@@ignore` models in the contract's storage, as storage with no model. Ignored objects now meet every rule of the reader, so a schema that loaded only because they were dropped can be refused. A project whose Prisma 7 schema uses `@ignore` or `@@ignore` gets a new storage hash: it emits its contract again and brings each existing database to the new hash, after recording a migration if Prisma 8 already plans its migrations. The detection matches a `.prisma` file that uses `@ignore` or `@@ignore`.
-    detection:
-      glob: "**/*.prisma"
-      matches:
-        - '@ignore\b'
-  - id: mongo-enum-member-written-as-stored
-    summary: |
-      A Mongo contract now refuses an enum member that its codec stores as a value it reads back differently, with `CONTRACT.ENUM_INVALID` in TypeScript and `PSL_EXTENSION_INVALID_VALUE` in PSL and Prisma 6 schemas. The built-in Mongo codecs store every enum member as written, so only an enum typed by your own codec can be refused. Write each refused member as the message says, or fix the codec so `decodeJson(encodeJson(value))` gives the value back.
-  - id: typescript-contract-namespace-keys
-    summary: |
-      A contract built with `defineContract` from TypeScript now types `contract.domain.namespaces`, `contract.storage.namespaces` and `db.orm` with the same namespace keys the built contract has at runtime, each holding only its own models and tables. Before, any string key typechecked and every namespace listed every model. Code that reads a namespace the contract does not have, or indexes `domain.namespaces` with a `string` variable, now fails to typecheck. ORM rows of such a contract, which were typed `unknown` field by field, now have each field's codec output type, so a cast to a type that disagrees with the codec type now fails with TS2352. The detection matches dot and bracket access to `domain.namespaces`.
-    detection:
-      glob: "**/*.{ts,mts,cts,tsx}"
+    glob: "**/*.{ts,tsx,mts,cts,js,mjs,cjs}"
+    matches:
+  - '(?<![\w$])variants(?![\w$])'
+- id: prisma7-ignore-keeps-storage
+  summary: |
+  A Prisma 7 schema read with `prisma7Schema()` keeps the columns, tables, keys, indexes and foreign keys of `@ignore` fields and `@@ignore` models in the contract's storage, as storage with no model. Ignored objects now meet every rule of the reader, so a schema that loaded only because they were dropped can be refused. A project whose Prisma 7 schema uses `@ignore` or `@@ignore` gets a new storage hash: it emits its contract again and brings each existing database to the new hash, after recording a migration if Prisma 8 already plans its migrations. The detection matches a `.prisma` file that uses `@ignore` or `@@ignore`.
+  detection:
+  glob: "**/*.prisma"
+  matches:
+  - '@ignore\b'
+- id: mongo-enum-member-written-as-stored
+  summary: |
+  A Mongo contract now refuses an enum member that its codec stores as a value it reads back differently, with `CONTRACT.ENUM_INVALID` in TypeScript and `PSL_EXTENSION_INVALID_VALUE` in PSL and Prisma 6 schemas. The built-in Mongo codecs store every enum member as written, so only an enum typed by your own codec can be refused. Write each refused member as the message says, or fix the codec so `decodeJson(encodeJson(value))` gives the value back.
+- id: typescript-contract-namespace-keys
+  summary: |
+  A contract built with `defineContract` from TypeScript now types `contract.domain.namespaces`, `contract.storage.namespaces` and `db.orm` with the same namespace keys the built contract has at runtime, each holding only its own models and tables. Before, any string key typechecked and every namespace listed every model. Code that reads a namespace the contract does not have, or indexes `domain.namespaces` with a `string` variable, now fails to typecheck. ORM rows of such a contract, which were typed `unknown` field by field, now have each field's codec output type, so a cast to a type that disagrees with the codec type now fails with TS2352. The detection matches dot and bracket access to `domain.namespaces`.
+  detection:
+  glob: "**/_.{ts,mts,cts,tsx}"
       matches:
         - '\.domain\.namespaces\b'
-        - '\[\s*[''"]domain[''"]\s*\]\s*\[\s*[''"]namespaces[''"]\s*\]'
-  - id: model-with-no-fields-has-no-keys
-    summary: |
-      A model with no fields now has no keys at the type level: reading a property of its row, such as `row.legacy_key`, fails to compile. In an emitted `contract.d.ts`, the fields and output types of such a model change from `Record<string, never>` to `{}`. In the SQL ORM client, writing a key in the create or update input of such a model, such as `create({ legacy_key: 'x' })`, also fails to compile now; before, both the read and the write compiled, for an emitted contract and for a contract built with `defineContract`. In the Mongo ORM, writes behave as before: an emitted contract already rejected such a key, and the update methods now take the type `UpdateInput` (see the next entry).
-  - id: generic-update-data-uses-update-input-type
-    summary: |
-      Code that is generic over the model name and passes a value typed `Partial<DefaultModelRow<Contract, M>>` to `updateAll`, `updateAndCount` or the `update` of `upsert` no longer compiles. Type the value as `ScalarUpdateInput<Contract, M>` from the SQL ORM client (`orm-client` entry point of the SQL facade, such as `@prisma/orm-postgres/orm-client`), or `UpdateInput<Contract, M>` from the Mongo ORM, instead.
-    detection:
-      glob: "**/*.{ts,mts,cts,tsx}"
+        - '\[\s_[''"]domain[''"]\s*\]\s*\[\s*[''"]namespaces[''"]\s*\]'
+- id: model-with-no-fields-has-no-keys
+  summary: |
+  A model with no fields now has no keys at the type level: reading a property of its row, such as `row.legacy_key`, fails to compile. In an emitted `contract.d.ts`, the fields and output types of such a model change from `Record<string, never>` to `{}`. In the SQL ORM client, writing a key in the create or update input of such a model, such as `create({ legacy_key: 'x' })`, also fails to compile now; before, both the read and the write compiled, for an emitted contract and for a contract built with `defineContract`. In the Mongo ORM, writes behave as before: an emitted contract already rejected such a key, and the update methods now take the type `UpdateInput` (see the next entry).
+- id: generic-update-data-uses-update-input-type
+  summary: |
+  Code that is generic over the model name and passes a value typed `Partial<DefaultModelRow<Contract, M>>` to `updateAll`, `updateAndCount` or the `update` of `upsert` no longer compiles. Type the value as `ScalarUpdateInput<Contract, M>` from the SQL ORM client (`orm-client` entry point of the SQL facade, such as `@prisma/orm-postgres/orm-client`), or `UpdateInput<Contract, M>` from the Mongo ORM, instead.
+  detection:
+  glob: "**/*.{ts,mts,cts,tsx}"
+  matches:
+  - 'Partial<\s*DefaultModelRow<'
+- id: orm-refuses-names-that-are-not-fields
+  summary: |
+  The SQL ORM client refuses any name a caller passes that is not a field of the model, or of the variant the collection is narrowed to, with `ORM.FIELD_UNKNOWN`. That covers `where` shorthand and callbacks, `orderBy`, `select`, `distinct`, `distinctOn`, `groupBy`, `cursor`, aggregates, `having`, create, update and upsert data, `conflictOn`, include nested selects and relation filters. A column name that differs from its field name is no longer accepted, and rows no longer carry a column no field maps. `conflictOn` with a name that is not a field raised `ORM.ARGUMENT_INVALID` and now raises `ORM.FIELD_UNKNOWN`. The detection matches a file that names both `conflictOn` and `ORM.ARGUMENT_INVALID`.
+  detection:
+  glob: "**/*.{ts,mts,cts,tsx}"
+  matches:
+  - '(?<![\s\S])(?=[\s\S]*\bconflictOn\b)[\s\S]*\bORM\.ARGUMENT_INVALID\b'
+- id: fragment-is-made-from-the-root-collection
+  summary: "The SQL ORM client's collection.fragment(body) refuses a collection with chained calls, such as db.Post.where(...).fragment(body), which used to ignore those calls; chain on the collection directly instead, or define a shared fragment on the model's root collection. A receiver typed by a type parameter, such as this in a custom collection class method, is refused at compile time. The detection matches .fragment( right after a closing parenthesis, as in a chained call, and this.fragment(."
+  detection:
+  glob: "**/_.{ts,mts,cts,tsx}"
       matches:
-        - 'Partial<\s*DefaultModelRow<'
-  - id: orm-refuses-names-that-are-not-fields
-    summary: |
-      The SQL ORM client refuses any name a caller passes that is not a field of the model, or of the variant the collection is narrowed to, with `ORM.FIELD_UNKNOWN`. That covers `where` shorthand and callbacks, `orderBy`, `select`, `distinct`, `distinctOn`, `groupBy`, `cursor`, aggregates, `having`, create, update and upsert data, `conflictOn`, include nested selects and relation filters. A column name that differs from its field name is no longer accepted, and rows no longer carry a column no field maps. `conflictOn` with a name that is not a field raised `ORM.ARGUMENT_INVALID` and now raises `ORM.FIELD_UNKNOWN`. The detection matches a file that names both `conflictOn` and `ORM.ARGUMENT_INVALID`.
-    detection:
-      glob: "**/*.{ts,mts,cts,tsx}"
-      matches:
-        - '(?<![\s\S])(?=[\s\S]*\bconflictOn\b)[\s\S]*\bORM\.ARGUMENT_INVALID\b'
-  - id: fragment-is-made-from-the-root-collection
-    summary: "The SQL ORM client's collection.fragment(body) refuses a collection with chained calls, such as db.Post.where(...).fragment(body), which used to ignore those calls; chain on the collection directly instead, or define a shared fragment on the model's root collection. A receiver typed by a type parameter, such as this in a custom collection class method, is refused at compile time. The detection matches .fragment( right after a closing parenthesis, as in a chained call, and this.fragment(."
-    detection:
-      glob: "**/*.{ts,mts,cts,tsx}"
-      matches:
-        - '\)\s*\.fragment\('
-        - '\bthis\s*\.fragment\('
-  - id: fragment-types-are-renamed
-    summary: |
-      The SQL ORM client's types `Fragment` and `FieldFragment`, which 8.0.0-rc.17 exports, are renamed to `QueryFragment` and `DeclaredFieldsFragment`. Code still on the 8.0.0-rc.16 names renames `Scope` to `QueryFragment`, `FieldScope` to `DeclaredFieldsFragment` and `ScopeFacts` to `FragmentFacts` directly. `FragmentFacts`, `DeclaredField`, `db.orm.fragment` and `collection.fragment` keep their names. The detection matches `Fragment` and `Scope` only in an import or re-export from an `orm-client` entry, after a namespace import of one, or in an inline `import(...)` type of one, so React's `Fragment` and the SQL builder's `Scope` do not match.
-    detection:
-      glob: "**/*.{ts,mts,cts,tsx}"
+        - '\)\s_\.fragment\('
+  - '\bthis\s*\.fragment\('
+- id: fragment-types-are-renamed
+  summary: |
+  The SQL ORM client's types `Fragment` and `FieldFragment`, which 8.0.0-rc.17 exports, are renamed to `QueryFragment` and `DeclaredFieldsFragment`. Code still on the 8.0.0-rc.16 names renames `Scope` to `QueryFragment`, `FieldScope` to `DeclaredFieldsFragment` and `ScopeFacts` to `FragmentFacts` directly. `FragmentFacts`, `DeclaredField`, `db.orm.fragment` and `collection.fragment` keep their names. The detection matches `Fragment` and `Scope` only in an import or re-export from an `orm-client` entry, after a namespace import of one, or in an inline `import(...)` type of one, so React's `Fragment` and the SQL builder's `Scope` do not match.
+  detection:
+  glob: "**/_.{ts,mts,cts,tsx}"
       matches:
         - '\b(?:FieldFragment|FieldScope|ScopeFacts)\b'
-        - '(?:import|export)\s+(?:type\s+)?\{[^}]*\b(?:Fragment|Scope)\b[^}]*\}\s*from\s*[''"]@prisma/[\w-]+/orm-client[''"]'
-        - 'import\s+(?:type\s+)?\*\s+as\s+([\w$]+)\s+from\s*[''"]@prisma/[\w-]+/orm-client[''"][\s\S]*\b\1\.(?:Fragment|Scope)\b'
-        - 'import\(\s*[''"]@prisma/[\w-]+/orm-client[''"]\s*\)\.(?:Fragment|FieldFragment|Scope|FieldScope)\b'
-  - id: unique-criterion-rejects-null
-    summary: |
-      `UniqueConstraintCriterion` in the SQL ORM client (`@prisma/orm-postgres/orm-client` and the other facades' `orm-client` entries) no longer accepts `null` for a nullable unique column, so the `conflictOn` of `upsert` and the criteria of a relation `connect` or `disconnect` stop compiling when a value is `null` or may be `null`. Pass a non-null value, or handle the null case before the call. The detection matches every `conflictOn`, `.connect(` and `.disconnect(`; leave as they are the calls on other objects, such as `postgres.connect(...)`, and the `conflictOn` of `createAll` and `createAndCount`, which is an array of field names.
-    detection:
-      glob: "**/*.{ts,tsx,mts,cts}"
+        - '(?:import|export)\s+(?:type\s+)?\{[^}]_\b(?:Fragment|Scope)\b[^}]*\}\s*from\s*[''"]@prisma/[\w-]+/orm-client[''"]'
+  - 'import\s+(?:type\s+)?\*\s+as\s+([\w$]+)\s+from\s*[''"]@prisma/[\w-]+/orm-client[''"][\s\S]_\b\1\.(?:Fragment|Scope)\b'
+        - 'import\(\s_[''"]@prisma/[\w-]+/orm-client[''"]\s*\)\.(?:Fragment|FieldFragment|Scope|FieldScope)\b'
+- id: unique-criterion-rejects-null
+  summary: |
+  `UniqueConstraintCriterion` in the SQL ORM client (`@prisma/orm-postgres/orm-client` and the other facades' `orm-client` entries) no longer accepts `null` for a nullable unique column, so the `conflictOn` of `upsert` and the criteria of a relation `connect` or `disconnect` stop compiling when a value is `null` or may be `null`. Pass a non-null value, or handle the null case before the call. The detection matches every `conflictOn`, `.connect(` and `.disconnect(`; leave as they are the calls on other objects, such as `postgres.connect(...)`, and the `conflictOn` of `createAll` and `createAndCount`, which is an array of field names.
+  detection:
+  glob: "**/_.{ts,tsx,mts,cts}"
       matches:
-        - '\bconflictOn\b|\.(?:connect|disconnect)\s*\(|\bUniqueConstraintCriterion\b'
-  - id: prepared-all-and-aggregate-need-their-receiver
-    summary: |
-      On every collection of the SQL ORM client, `prepared.all` and `prepared.aggregate` no longer compile when called without the `prepared` object as their receiver, such as after `const { all } = collection.prepared`. Call them on the `prepared` object. `prepared.first` and `prepared.firstOrThrow` are not affected, and nothing changes at run time.
-    detection:
-      glob: "**/*.{ts,tsx,mts,cts}"
+        - '\bconflictOn\b|\.(?:connect|disconnect)\s_\(|\bUniqueConstraintCriterion\b'
+- id: prepared-all-and-aggregate-need-their-receiver
+  summary: |
+  On every collection of the SQL ORM client, `prepared.all` and `prepared.aggregate` no longer compile when called without the `prepared` object as their receiver, such as after `const { all } = collection.prepared`. Call them on the `prepared` object. `prepared.first` and `prepared.firstOrThrow` are not affected, and nothing changes at run time.
+  detection:
+  glob: "**/_.{ts,tsx,mts,cts}"
       matches:
-        - '\{[^}]*\b(?:all|aggregate)\b[^}]*\}\s*=\s*[^;\n]*\.prepared\b'
-  - id: native-enums-leave-out-domain-enums
-    summary: |
-      On Postgres, `db.nativeEnums` now holds only native enum types (`native_enum` blocks and `nativeEnum()`). It used to also hold every domain enum (`enum` blocks and `enumType()`), with its values as stored, such as `['1', '10']` for an enum over `pg/int8`. Read a domain enum through `db.enums`, which holds its values as a query returns them.
-    detection:
-      glob: "**/*.{ts,mts,cts,tsx}"
-      matches:
-        - '\.nativeEnums\b'
-  - id: middleware-hooks-are-activity-hooks
-    summary: |
-      The per-statement middleware hooks are replaced. `beforeQuery` and `beforeExecute` become `beforeEncode`; `interceptQuery` and `interceptExecute` become `intercept.onQuery` and `intercept.onExecute`; `afterQuery` and `afterExecute` become `activityEnded` on a statement; `afterTransaction` becomes `activityFinalized` on a statement. `onRow` and `beforeCompile` are unchanged.
-    detection:
-      glob: "**/*.{ts,mts,cts,tsx}"
-      matches:
-        - '\b(beforeQuery|beforeExecute|interceptQuery|interceptExecute|afterQuery|afterExecute|afterTransaction)\b'
-  - id: middleware-context-is-activity-context
-    summary: |
-      `RuntimeMiddlewareContext` is renamed `ActivityContext`. It gains `parent`, `state(key)` and `inTransaction()`, and loses `planExecutionId`; use `activity.id` instead.
-    detection:
-      glob: "**/*.{ts,mts,cts,tsx}"
-      matches:
-        - '\bRuntimeMiddlewareContext\b'
-        - '\bplanExecutionId\b'
-  - id: after-result-types-removed
-    summary: |
-      `AfterQueryResult`, `AfterExecuteResult` and `AfterTransactionResult` are removed. Use `ActivityEndedResult` (narrow it with `result.kind === 'statement'` and `result.returns`) and `ActivityFinalizedResult`.
-    detection:
-      glob: "**/*.{ts,mts,cts,tsx}"
-      matches:
-        - '\bAfter(Query|Execute|Transaction)Result\b'
-  - id: aborted-phase-before-encode
-    summary: |
-      A `RUNTIME.ABORTED` error raised during the middleware stage before encoding reports `details.phase: 'beforeEncode'`, not `'beforeQuery'` or `'beforeExecute'`. The phases `'afterQuery'` and `'afterExecute'` no longer occur. Mongo's `RUNTIME.CONTENT_HASH_REQUIRES_RESOLVED_COMMAND` also reports `details.phase: 'beforeEncode'`, not `'beforeExecute'`.
-    detection:
-      glob: "**/*.{ts,mts,cts,tsx}"
-      matches:
-        - '[''"`](beforeQuery|beforeExecute|afterQuery|afterExecute)[''"`]'
-  - id: every-started-statement-is-ended-and-finalized
-    summary: |
-      Every statement the runtime accepts now starts an activity, and every started statement ends and is finalized exactly once. A call with an already-aborted signal fires `activityStarted` before it fails. A statement that fails before it runs, in `beforeCompile`, `beforeEncode` or parameter encoding, now ends `failed` and is finalized, where it got no `afterTransaction` before. `activityEnded` also fires for a statement the caller stopped reading (outcome `'stopped'`) and for a statement that failed before it ran (outcome `'failed'`, `latencyMs: 0`, `source: 'driver'`); `afterQuery` and `afterExecute` fired for neither, so a metrics or slow-query middleware now counts them unless it checks `result.outcome`. When a middleware's `activityStarted` throws, the middleware after it receive no `activityEnded` or `activityFinalized` for that activity. A statement still running when its transaction ends, such as a row stream still being read, is finalized when it ends, with the transaction's outcome, and keeps its `ctx.state` until then.
-  - id: observed-row-budget-runs
-    summary: |
-      The `budgets()` middleware now counts the rows a query returns and enforces `maxRows` on them. Before, the observed-row check never ran. With the default row severity `'error'`, or in `strict` mode, a query that returns more than `maxRows` rows fails with `BUDGET.ROWS_EXCEEDED`; with `'warn'` in `permissive` mode it logs one warning for the statement and keeps streaming.
-    detection:
-      glob: "**/*.{ts,mts,cts,tsx}"
-      matches:
-        - '\bbudgets\('
-  - id: lossy-type-changes-ask
-    summary: |
-      On Postgres and SQLite, `migration plan` and `db update` no longer write a type change that can lose values without asking. A script that runs them without a terminal fails with `CLI.CONSENT_REQUIRED` until it passes `--convert <Model.field>` (`migration plan` only: write the conversion into the slot) or `--delete <Model.field>` (the database's own cast runs: it may cut or round values, such as a longer text cut to a shorter `VarChar` on Postgres, and a value it cannot cast fails the apply).
-  - id: placeholders-only-when-asked
-    summary: |
-      `migration plan` writes `placeholder(...)` slots on Postgres and SQLite only for a field that `--convert` or `--backfill` names. A new required field now gets a temporary value in the existing rows (`''`, `0`, …), which the output names, and an optional field made required is tightened directly. Pass `--backfill <Model.field>` to get the backfill step to fill instead.
-  - id: required-field-failures-count-rows
-    summary: |
-      A migration that makes a field required while rows have no value for it fails with `MIGRATION.RUNNER_FAILED`, whose summary counts the rows and whose advice names the fix. Scripts that matched the old summary text (`… failed during precheck: ensure no NULL values in …`) must match the new one, or the `rowsWithoutValue` failure field.
-  - id: postgres-alter-column-type-plain-options
-    summary: |
-      `this.alterColumnType(...)` in a Postgres `migration.ts` now takes `{ schema, table, column, type, using?, operationClass? }`. The `options` object with `qualifiedTargetType`, `formatTypeExpected`, `rawTargetTypeForLabel` and `using` is gone. Move `options.qualifiedTargetType` to `type` and `options.using` to `using`, and drop the other two.
-    detection:
-      glob: "**/migration.ts"
-      matches:
-        - '\bqualifiedTargetType\s*:'
-  - id: mongo-rename-statements-carried-out
-    summary: |
-      On MongoDB, `migration plan` and `db update` carry out `--rename`: a model rename renames its collection, keeping the documents, indexes and validator, and a field rename renames the field in every document that holds it. They used to refuse every statement with `MIGRATION.PLANNING_FAILED`. A question about a dropped collection now offers `--rename` as well as `--delete`.
-  - id: mongo-removed-field-asks
-    summary: |
-      On MongoDB, removing a field from a model is now data loss. `migration plan` and `db update` ask about it, and fail with `CLI.CONSENT_REQUIRED` where nobody can answer, until `--delete <Model>.<field>` or a `--rename` answers it. `--delete` removes the field from every document that holds it.
-  - id: mongo-preview-get-collection
-    summary: |
-      A MongoDB plan's preview writes each collection as `db.getCollection("users")`, for example `db.getCollection("users").createIndex(...)` where it wrote `db.users.createIndex(...)`. `ops.json` does not change.
-    detection:
-      glob: "**/*.{ts,mts,cts,js,mjs,cjs,snap}"
+        - '\{[^}]_\b(?:all|aggregate)\b[^}]_\}\s_=\s*[^;\n]*\.prepared\b'
+- id: native-enums-leave-out-domain-enums
+  summary: |
+  On Postgres, `db.nativeEnums` now holds only native enum types (`native_enum` blocks and `nativeEnum()`). It used to also hold every domain enum (`enum` blocks and `enumType()`), with its values as stored, such as `['1', '10']` for an enum over `pg/int8`. Read a domain enum through `db.enums`, which holds its values as a query returns them.
+  detection:
+  glob: "**/*.{ts,mts,cts,tsx}"
+  matches:
+  - '\.nativeEnums\b'
+- id: middleware-hooks-are-activity-hooks
+  summary: |
+  The per-statement middleware hooks are replaced. `beforeQuery` and `beforeExecute` become `beforeEncode`; `interceptQuery` and `interceptExecute` become `intercept.onQuery` and `intercept.onExecute`; `afterQuery` and `afterExecute` become `activityEnded` on a statement; `afterTransaction` becomes `activityFinalized` on a statement. `onRow` and `beforeCompile` are unchanged.
+  detection:
+  glob: "**/*.{ts,mts,cts,tsx}"
+  matches:
+  - '\b(beforeQuery|beforeExecute|interceptQuery|interceptExecute|afterQuery|afterExecute|afterTransaction)\b'
+- id: middleware-context-is-activity-context
+  summary: |
+  `RuntimeMiddlewareContext` is renamed `ActivityContext`. It gains `parent`, `state(key)` and `inTransaction()`, and loses `planExecutionId`; use `activity.id` instead.
+  detection:
+  glob: "**/*.{ts,mts,cts,tsx}"
+  matches:
+  - '\bRuntimeMiddlewareContext\b'
+  - '\bplanExecutionId\b'
+- id: after-result-types-removed
+  summary: |
+  `AfterQueryResult`, `AfterExecuteResult` and `AfterTransactionResult` are removed. Use `ActivityEndedResult` (narrow it with `result.kind === 'statement'` and `result.returns`) and `ActivityFinalizedResult`.
+  detection:
+  glob: "**/*.{ts,mts,cts,tsx}"
+  matches:
+  - '\bAfter(Query|Execute|Transaction)Result\b'
+- id: aborted-phase-before-encode
+  summary: |
+  A `RUNTIME.ABORTED` error raised during the middleware stage before encoding reports `details.phase: 'beforeEncode'`, not `'beforeQuery'` or `'beforeExecute'`. The phases `'afterQuery'` and `'afterExecute'` no longer occur. Mongo's `RUNTIME.CONTENT_HASH_REQUIRES_RESOLVED_COMMAND` also reports `details.phase: 'beforeEncode'`, not `'beforeExecute'`.
+  detection:
+  glob: "**/*.{ts,mts,cts,tsx}"
+  matches:
+  - '[''"`](beforeQuery|beforeExecute|afterQuery|afterExecute)[''"`]'
+- id: every-started-statement-is-ended-and-finalized
+  summary: |
+  Every statement the runtime accepts now starts an activity, and every started statement ends and is finalized exactly once. A call with an already-aborted signal fires `activityStarted` before it fails. A statement that fails before it runs, in `beforeCompile`, `beforeEncode` or parameter encoding, now ends `failed` and is finalized, where it got no `afterTransaction` before. `activityEnded` also fires for a statement the caller stopped reading (outcome `'stopped'`) and for a statement that failed before it ran (outcome `'failed'`, `latencyMs: 0`, `source: 'driver'`); `afterQuery` and `afterExecute` fired for neither, so a metrics or slow-query middleware now counts them unless it checks `result.outcome`. When a middleware's `activityStarted` throws, the middleware after it receive no `activityEnded` or `activityFinalized` for that activity. A statement still running when its transaction ends, such as a row stream still being read, is finalized when it ends, with the transaction's outcome, and keeps its `ctx.state` until then.
+- id: observed-row-budget-runs
+  summary: |
+  The `budgets()` middleware now counts the rows a query returns and enforces `maxRows` on them. Before, the observed-row check never ran. With the default row severity `'error'`, or in `strict` mode, a query that returns more than `maxRows` rows fails with `BUDGET.ROWS_EXCEEDED`; with `'warn'` in `permissive` mode it logs one warning for the statement and keeps streaming.
+  detection:
+  glob: "**/*.{ts,mts,cts,tsx}"
+  matches:
+  - '\bbudgets\('
+- id: lossy-type-changes-ask
+  summary: |
+  On Postgres and SQLite, `migration plan` and `db update` no longer write a type change that can lose values without asking. A script that runs them without a terminal fails with `CLI.CONSENT_REQUIRED` until it passes `--convert <Model.field>` (`migration plan` only: write the conversion into the slot) or `--delete <Model.field>` (the database's own cast runs: it may cut or round values, such as a longer text cut to a shorter `VarChar` on Postgres, and a value it cannot cast fails the apply).
+- id: placeholders-only-when-asked
+  summary: |
+  `migration plan` writes `placeholder(...)` slots on Postgres and SQLite only for a field that `--convert` or `--backfill` names. A new required field now gets a temporary value in the existing rows (`''`, `0`, …), which the output names, and an optional field made required is tightened directly. Pass `--backfill <Model.field>` to get the backfill step to fill instead.
+- id: required-field-failures-count-rows
+  summary: |
+  A migration that makes a field required while rows have no value for it fails with `MIGRATION.RUNNER_FAILED`, whose summary counts the rows and whose advice names the fix. Scripts that matched the old summary text (`… failed during precheck: ensure no NULL values in …`) must match the new one, or the `rowsWithoutValue` failure field.
+- id: postgres-alter-column-type-plain-options
+  summary: |
+  `this.alterColumnType(...)` in a Postgres `migration.ts` now takes `{ schema, table, column, type, using?, operationClass? }`. The `options` object with `qualifiedTargetType`, `formatTypeExpected`, `rawTargetTypeForLabel` and `using` is gone. Move `options.qualifiedTargetType` to `type` and `options.using` to `using`, and drop the other two.
+  detection:
+  glob: "**/migration.ts"
+  matches:
+  - '\bqualifiedTargetType\s*:'
+- id: mongo-rename-statements-carried-out
+  summary: |
+  On MongoDB, `migration plan` and `db update` carry out `--rename`: a model rename renames its collection, keeping the documents, indexes and validator, and a field rename renames the field in every document that holds it. They used to refuse every statement with `MIGRATION.PLANNING_FAILED`. A question about a dropped collection now offers `--rename` as well as `--delete`.
+- id: mongo-removed-field-asks
+  summary: |
+  On MongoDB, removing a field from a model is now data loss. `migration plan` and `db update` ask about it, and fail with `CLI.CONSENT_REQUIRED` where nobody can answer, until `--delete <Model>.<field>` or a `--rename` answers it. `--delete` removes the field from every document that holds it.
+- id: mongo-preview-get-collection
+  summary: |
+  A MongoDB plan's preview writes each collection as `db.getCollection("users")`, for example `db.getCollection("users").createIndex(...)` where it wrote `db.users.createIndex(...)`. `ops.json` does not change.
+  detection:
+  glob: "**/*.{ts,mts,cts,js,mjs,cjs,snap}"
       matches:
         - 'db\.[A-Za-z_][\w]*\.(?:createIndex|dropIndex|drop)\('
-  - id: mongo-time-series-update
-    summary: |
-      `db update` on a database with a MongoDB time-series collection no longer fails with "Cannot change immutable collection option 'timeseries'" when nothing changed.
-  - id: storage-question-wording
-    summary: |
-      A data-loss question about data named by its storage name, because the origin contract is unknown, ends with `--delete loses that data` instead of `--delete loses its rows`.
-    detection:
-      glob: "**/*.{ts,mts,cts,js,mjs,cjs}"
-      matches:
-        - '--delete loses its rows'
-  - id: migration-ts-finds-its-config
-    summary: |
-      Running a `migration.ts` with node and no `--config` uses the config that owns the migration, whose migrations directory holds the file: the nearest `prisma.config.ts` above the migration's directory, else the one in the working directory. If neither owns it, it fails with `CLI.MIGRATION_CONFIG_NOT_FOUND`. It used to load only the working directory's config, whichever project it belonged to.
-  - id: contract-artifacts-restamp
-    summary: |
-      An extension that writes its own package version into the contracts it emits, such as the
-      Supabase extension, now writes 8.0.0-rc.18. Run `contract emit` once after upgrading so the
-      emitted `contract.json` and `contract.d.ts` match the installed extension.
-    detection:
-      glob: "**/contract.json"
-      contains:
-        - '"version": "8.0.0-rc.17"'
+- id: mongo-time-series-update
+  summary: |
+  `db update` on a database with a MongoDB time-series collection no longer fails with "Cannot change immutable collection option 'timeseries'" when nothing changed.
+- id: storage-question-wording
+  summary: |
+  A data-loss question about data named by its storage name, because the origin contract is unknown, ends with `--delete loses that data` instead of `--delete loses its rows`.
+  detection:
+  glob: "**/*.{ts,mts,cts,js,mjs,cjs}"
+  matches:
+  - '--delete loses its rows'
+- id: migration-ts-finds-its-config
+  summary: |
+  Running a `migration.ts` with node and no `--config` uses the config that owns the migration, whose migrations directory holds the file: the nearest `prisma.config.ts` above the migration's directory, else the one in the working directory. If neither owns it, it fails with `CLI.MIGRATION_CONFIG_NOT_FOUND`. It used to load only the working directory's config, whichever project it belonged to.
+- id: contract-artifacts-restamp
+  summary: |
+  An extension that writes its own package version into the contracts it emits, such as the
+  Supabase extension, now writes 8.0.0-rc.18. Run `contract emit` once after upgrading so the
+  emitted `contract.json` and `contract.d.ts` match the installed extension.
+  detection:
+  glob: "**/contract.json"
+  contains:
+  - '"version": "8.0.0-rc.17"'
+
 ---
 
 # 8.0.0-rc.17 → 8.0.0-rc.18 — User upgrade instructions
@@ -303,14 +305,14 @@ On Postgres, `unbound` and `__unbound__` are rejected only when the schema also 
 
 Raw SQL in a PSL schema is written as a `sql` literal, the form `@default` already uses. A quoted string is refused in these places:
 
-| Place | Before | After |
-| --- | --- | --- |
-| `@@index(where:)` | `@@index([email], where: "(archived_at IS NULL)", name: "users_email_active")` | ``@@index([email], where: sql`(archived_at IS NULL)`, name: "users_email_active")`` |
-| `@@index(expression:)` | `@@index(expression: "lower(email)", name: "users_email_lower")` | ``@@index(expression: sql`lower(email)`, name: "users_email_lower")`` |
+| Place                     | Before                                                                                    | After                                                                                          |
+| ------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `@@index(where:)`         | `@@index([email], where: "(archived_at IS NULL)", name: "users_email_active")`            | ``@@index([email], where: sql`(archived_at IS NULL)`, name: "users_email_active")``            |
+| `@@index(expression:)`    | `@@index(expression: "lower(email)", name: "users_email_lower")`                          | ``@@index(expression: sql`lower(email)`, name: "users_email_lower")``                          |
 | `@@fullTextIndex(where:)` | `@@fullTextIndex([text], where: "archived_at IS NULL", name: "message_text_search_live")` | ``@@fullTextIndex([text], where: sql`archived_at IS NULL`, name: "message_text_search_live")`` |
-| `@@check(expression:)` | `@@check(expression: "total > 0", name: "order_total_positive")` | ``@@check(expression: sql`total > 0`, name: "order_total_positive")`` |
-| a policy's `using` | `using = "\"userId\"::uuid = auth.uid()"` | ``using = sql`"userId"::uuid = auth.uid()` `` |
-| a policy's `withCheck` | `withCheck = "\"userId\"::uuid = auth.uid()"` | ``withCheck = sql`"userId"::uuid = auth.uid()` `` |
+| `@@check(expression:)`    | `@@check(expression: "total > 0", name: "order_total_positive")`                          | ``@@check(expression: sql`total > 0`, name: "order_total_positive")``                          |
+| a policy's `using`        | `using = "\"userId\"::uuid = auth.uid()"`                                                 | ``using = sql`"userId"::uuid = auth.uid()` ``                                                  |
+| a policy's `withCheck`    | `withCheck = "\"userId\"::uuid = auth.uid()"`                                             | ``withCheck = sql`"userId"::uuid = auth.uid()` ``                                              |
 
 Inside a `sql` literal no quote is escaped: `\"` becomes `"`. A literal may span lines.
 
@@ -351,19 +353,19 @@ After emitting the rewritten schema, run `prisma migration plan` once and commit
 
 Every field of the TypeScript contract builder that holds raw SQL takes a `sql` value, as `.default()` already did. Wrap each string in the `sql` tag, imported from the same contract-builder module as the other helpers:
 
-| Place | Before | After |
-| --- | --- | --- |
-| `index` `where` | `constraints.index([cols.email], { where: '(archived_at IS NULL)', name: 'users_email_active' })` | ``constraints.index([cols.email], { where: sql`(archived_at IS NULL)`, name: 'users_email_active' })`` |
-| `index` `expression` | `constraints.index({ expression: 'lower(email)', name: 'users_email_lower' })` | ``constraints.index({ expression: sql`lower(email)`, name: 'users_email_lower' })`` |
-| `fullTextIndex` `where` | `fullTextIndex(cols.text, { where: 'archived_at IS NULL', name: 'message_text_search_live' })` | ``fullTextIndex(cols.text, { where: sql`archived_at IS NULL`, name: 'message_text_search_live' })`` |
-| `check` `expression` | `check({ expression: 'total > 0', name: 'order_total_positive' })` | ``check({ expression: sql`total > 0`, name: 'order_total_positive' })`` |
+| Place                              | Before                                                                                                                | After                                                                                                                      |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `index` `where`                    | `constraints.index([cols.email], { where: '(archived_at IS NULL)', name: 'users_email_active' })`                     | ``constraints.index([cols.email], { where: sql`(archived_at IS NULL)`, name: 'users_email_active' })``                     |
+| `index` `expression`               | `constraints.index({ expression: 'lower(email)', name: 'users_email_lower' })`                                        | ``constraints.index({ expression: sql`lower(email)`, name: 'users_email_lower' })``                                        |
+| `fullTextIndex` `where`            | `fullTextIndex(cols.text, { where: 'archived_at IS NULL', name: 'message_text_search_live' })`                        | ``fullTextIndex(cols.text, { where: sql`archived_at IS NULL`, name: 'message_text_search_live' })``                        |
+| `check` `expression`               | `check({ expression: 'total > 0', name: 'order_total_positive' })`                                                    | ``check({ expression: sql`total > 0`, name: 'order_total_positive' })``                                                    |
 | a policy's `using` and `withCheck` | `policySelect(Profile, { name: 'profile_owner_read', roles: [authenticated], using: '"userId"::uuid = auth.uid()' })` | ``policySelect(Profile, { name: 'profile_owner_read', roles: [authenticated], using: sql`"userId"::uuid = auth.uid()` })`` |
 
 ```ts
-import { check, policySelect, sql } from '@prisma/orm-postgres/contract-builder';
+import { check, policySelect, sql } from '@prisma/orm-postgres/contract-builder'
 ```
 
-Copy the string's value, not its source: undo the TypeScript string's own escaping first, so `'"userId"'` and `"\"userId\""` both become `` sql`"userId"` ``. Inside the template, write each backtick as `` \` ``, each `${` as `\${`, and a backslash that precedes a backtick, a dollar sign or another backslash as `\\`; every other backslash is kept as written, so `E'\n'` stays `E'\n'`. An index or check object written by hand in `.sql({ indexes, checks })` takes a `sql` value in the same fields. A shared predicate held in a `const` becomes a `sql` value too: `` const owner = sql`"userId"::uuid = auth.uid()`; ``.
+Copy the string's value, not its source: undo the TypeScript string's own escaping first, so `'"userId"'` and `"\"userId\""` both become `` sql`"userId"` ``. Inside the template, write each backtick as `` \` ``, each `${` as `\${`, and a backslash that precedes a backtick, a dollar sign or another backslash as `\\`; every other backslash is kept as written, so `E'\n'` stays `E'\n'`. An index or check object written by hand in `.sql({ indexes, checks })` takes a `sql` value in the same fields. A shared predicate held in a `const` becomes a `sql` value too: ``const owner = sql`"userId"::uuid = auth.uid()`;``.
 
 Skip files under a `migrations/` folder and leave them as they are: migration functions take a string or a `sql` value, and a string keeps its exact text, while wrapping it in `sql` canonicalizes it, which can change the SQL that migration runs.
 
@@ -376,8 +378,8 @@ This supersedes the TypeScript `fullTextIndex(cols.text, { where: 'archived_at I
 The `sql` tag accepts other `sql` values inside `${…}`. It joins their text into the template and canonicalizes the whole text once. A predicate that was built by joining strings is written as one `sql` template:
 
 ```ts
-const owner = sql`owner_id = current_setting('app.uid')::int`;
-const ownerAlive = sql`${owner} AND deleted_at IS NULL`;
+const owner = sql`owner_id = current_setting('app.uid')::int`
+const ownerAlive = sql`${owner} AND deleted_at IS NULL`
 ```
 
 Anything else inside `${…}`, such as a string or a number, is a type error, and throws `CONTRACT.SQL_EXPRESSION_INTERPOLATION` from JavaScript that is not type-checked. Prisma never quotes a value into SQL, so write any other text inside the template. Each line of an interpolated value after its first takes the indentation of the template line the `${…}` sits on, so a multi-line value inside an indented template stores the same text as the same SQL written out in one template.
@@ -399,7 +401,7 @@ A `sql` value stores its canonical text, as a PSL `sql` literal does: indentatio
 A column default whose text a `sql` literal cannot write back unchanged, for example a string constant holding a carriage return or a whitespace-only line, is treated differently by the two commands that write PSL, for the reason ADR 268 gives ("Column defaults that do not read back"):
 
 - `contract infer` still writes the default as a `sql` literal and adds the comment `// prisma: default of "<column>" holds text a sql literal cannot write back unchanged; check its string constants before applying a migration` to the model. The literal reads back as a different constant, so a database created from the inferred schema gets that constant. Check the constant, and fix it in the schema or in the database before you apply a migration planned from it.
-- `contract print` refuses the default with `CONTRACT.PRINT_UNSUPPORTED` (``default of column "public"."post"."slug" holds SQL that a sql literal cannot write back unchanged``). Write the default in its canonical form in the contract's source. A contract holds such a default only when it was built before this release, or through `.default({ kind: 'function', expression })` or `.defaultSql('...')`.
+- `contract print` refuses the default with `CONTRACT.PRINT_UNSUPPORTED` (`default of column "public"."post"."slug" holds SQL that a sql literal cannot write back unchanged`). Write the default in its canonical form in the contract's source. A contract holds such a default only when it was built before this release, or through `.default({ kind: 'function', expression })` or `.defaultSql('...')`.
 
 This applies to projects that write only PSL as well as TypeScript projects.
 
@@ -508,13 +510,15 @@ This affects only code that reads `variants` from a contract object or from `con
 
 ```ts
 // before
-const value = models.Task.variants.Bug.value;
-const variantNames = Object.keys(models.Task.variants);
+const value = models.Task.variants.Bug.value
+const variantNames = Object.keys(models.Task.variants)
 
 // after
-const model = models.Task.variants.bug.model;
-const values = Object.keys(models.Task.variants);
-const variantNames = Object.values(models.Task.variants).map((variant) => variant.model);
+const model = models.Task.variants.bug.model
+const values = Object.keys(models.Task.variants)
+const variantNames = Object.values(models.Task.variants).map(
+	(variant) => variant.model,
+)
 ```
 
 To find the value of a known variant model, search the entries for the one whose `model` and `namespace` are that model's.
@@ -741,12 +745,16 @@ The type is the argument of three calls, and each of them now refuses `null` and
 Only a model with a nullable unique column is affected. Given `Account.handle`, a nullable column with a unique constraint, these no longer compile:
 
 ```ts
-await db.orm.Account.upsert({ create, update, conflictOn: { handle: null } });
-await db.orm.Account.upsert({ create, update, conflictOn: { handle: maybeHandle } }); // maybeHandle: string | null
+await db.orm.Account.upsert({ create, update, conflictOn: { handle: null } })
+await db.orm.Account.upsert({
+	create,
+	update,
+	conflictOn: { handle: maybeHandle },
+}) // maybeHandle: string | null
 
 await db.orm.Owner.where({ id }).update({
-  accounts: (accounts) => accounts.connect({ handle: maybeHandle }),
-});
+	accounts: (accounts) => accounts.connect({ handle: maybeHandle }),
+})
 ```
 
 The compiler reports `Type 'null' is not assignable to type 'string'` on the field.
@@ -777,17 +785,17 @@ What to write instead:
 `all` and `aggregate` on a collection's `prepared` object now declare the object they are called on. This applies to every collection, not only one filtered with `whereUnique`. A call without that receiver no longer compiles:
 
 ```ts
-const { all, aggregate } = db.orm.Post.prepared;
-all(); // error: The 'this' context of type 'void' is not assignable to method's 'this'
-aggregate((a) => ({ posts: a.count() })); // the same error
+const { all, aggregate } = db.orm.Post.prepared
+all() // error: The 'this' context of type 'void' is not assignable to method's 'this'
+aggregate((a) => ({ posts: a.count() })) // the same error
 ```
 
 Call the method on the `prepared` object instead:
 
 ```ts
-const prepared = db.orm.Post.prepared;
-prepared.all();
-prepared.aggregate((a) => ({ posts: a.count() }));
+const prepared = db.orm.Post.prepared
+prepared.all()
+prepared.aggregate((a) => ({ posts: a.count() }))
 ```
 
 These still compile and need no change: a destructured `first` or `firstOrThrow`, as in `const { first, firstOrThrow } = db.orm.Post.prepared; first(); firstOrThrow()`, and `prepared.all` passed as a callback without being called. What the methods do at run time is unchanged.
@@ -800,9 +808,9 @@ For each `db.nativeEnums.<namespace>.<Name>` in the code, check whether `<Name>`
 
 ```ts
 // before
-db.nativeEnums.public.Priority.values; // ['1', '10'], the stored text
+db.nativeEnums.public.Priority.values // ['1', '10'], the stored text
 // after
-db.enums.public.Priority.values; // [1n, 10n], the values a query returns
+db.enums.public.Priority.values // [1n, 10n], the values a query returns
 ```
 
 A domain enum's values in `db.enums` are the values a query returns, which can differ from the stored text that `db.nativeEnums` held: a `pg/int8` member is a `bigint`, a `pg/timestamptz-temporal` member a `Temporal.Instant`. Change code that compared them with stored text. A member's name is its name in the enum, such as `Low`, where `db.nativeEnums` named each member by its value.
@@ -813,14 +821,14 @@ The runtime now runs every statement and every transaction as an **activity**. A
 
 ### Rename the hooks
 
-| Before | After |
-|---|---|
-| `beforeQuery`, `beforeExecute` | `beforeEncode` |
+| Before                               | After                                      |
+| ------------------------------------ | ------------------------------------------ |
+| `beforeQuery`, `beforeExecute`       | `beforeEncode`                             |
 | `interceptQuery`, `interceptExecute` | `intercept.onQuery`, `intercept.onExecute` |
-| `onRow` | `onRow` |
-| `afterQuery`, `afterExecute` | `activityEnded` on a statement |
-| `afterTransaction` | `activityFinalized` on a statement |
-| `beforeCompile` | `beforeCompile` |
+| `onRow`                              | `onRow`                                    |
+| `afterQuery`, `afterExecute`         | `activityEnded` on a statement             |
+| `afterTransaction`                   | `activityFinalized` on a statement         |
+| `beforeCompile`                      | `beforeCompile`                            |
 
 `beforeEncode` keeps the arguments of `beforeQuery` and `beforeExecute`: the lowered plan, the context and the parameter mutator. It runs for both `query()` and `execute()`. A middleware that defined both `beforeQuery` and `beforeExecute` with the same body defines `beforeEncode` once. A middleware that must tell them apart reads `activity.returns` (`'rows'` or `'stats'`) in `activityStarted` and keeps it in `ctx.state`.
 

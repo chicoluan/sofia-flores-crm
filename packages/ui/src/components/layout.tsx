@@ -12,7 +12,7 @@ type LayoutHeaderProps = HTMLAttributes<HTMLElement>
 const LayoutHeader = ({ className, ...props }: LayoutHeaderProps) => {
 	return (
 		<>
-			<div className="fixed z-50 h-1 w-full bg-[#0062AD]" />
+			<div className='fixed z-50 h-1 w-full bg-[#0062AD]' />
 
 			<header
 				className={cn(
@@ -20,7 +20,7 @@ const LayoutHeader = ({ className, ...props }: LayoutHeaderProps) => {
 					className,
 				)}
 			>
-				<div className="container" {...props} />
+				<div className='container' {...props} />
 			</header>
 		</>
 	)
@@ -36,7 +36,7 @@ type LayoutFooterProps = HTMLAttributes<HTMLElement>
 
 const LayoutFooter = ({ className, ...props }: LayoutFooterProps) => {
 	return (
-		<div className="bg-white dark:bg-background">
+		<div className='bg-white dark:bg-background'>
 			<footer className={cn('container', className)} {...props} />
 		</div>
 	)

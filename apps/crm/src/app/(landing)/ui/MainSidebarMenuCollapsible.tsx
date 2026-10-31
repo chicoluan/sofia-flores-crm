@@ -38,12 +38,12 @@ export default function MainSidebarMenuCollapsible({
 				<CollapsibleTrigger asChild>
 					<SidebarMenuButton
 						isActive={isParentActive}
-						className="hover:cursor-pointer"
+						className='hover:cursor-pointer'
 						tooltip={item.title}
 					>
 						{item.icon && <item.icon />}
 						<span>{item.title}</span>
-						<ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+						<ChevronRight className='ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90' />
 					</SidebarMenuButton>
 				</CollapsibleTrigger>
 				<CollapsibleContent>

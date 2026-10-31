@@ -21,7 +21,7 @@ export default function MainSidebarMenuItems({
 		<SidebarMenuItem>
 			<SidebarMenuButton
 				isActive={isActive}
-				className="hover:cursor-pointer"
+				className='hover:cursor-pointer'
 				tooltip={item.title}
 				onClick={() => route.push(item.url)}
 			>
