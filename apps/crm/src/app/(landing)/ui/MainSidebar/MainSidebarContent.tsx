@@ -7,7 +7,7 @@ import {
 } from '@sofiaflores/ui/components/sidebar'
 import type { JSX } from 'react'
 import MainSidebarMenu from './MainSidebarMenu'
-import items from '../../../data/MainSidebarData'
+import items from '../../../../data/MainSidebarData'
 
 export default function MainSidebarContent(): JSX.Element {
 	return (

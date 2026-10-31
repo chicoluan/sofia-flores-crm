@@ -9,20 +9,20 @@ const items: MainSidebarMenuItem[] = [
 	},
 	{
 		title: 'Clientes',
-		url: '/dashboard',
+		url: 'clients',
 		icon: Users,
-		items: [
-			{
-				title: 'Cadastrar Cliente',
-				url: '/new-client',
-				icon: UserPlus,
-			},
-			{
-				title: 'Lista de Cliente',
-				url: '/clients',
-				icon: List,
-			},
-		],
+		// items: [
+		// 	{
+		// 		title: 'Lista de Cliente',
+		// 		url: '/clients',
+		// 		icon: List,
+		// 	},
+		// 	{
+		// 		title: 'Cadastrar Cliente',
+		// 		url: '/new-client',
+		// 		icon: UserPlus,
+		// 	},
+		// ],
 	},
 ]
 

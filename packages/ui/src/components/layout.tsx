@@ -1,5 +1,5 @@
-import type { HTMLAttributes } from 'react'
 import { cn } from '../lib/utils'
+import type { HTMLAttributes } from 'react'
 
 type LayoutRootProps = HTMLAttributes<HTMLDivElement>
 
@@ -29,7 +29,12 @@ const LayoutHeader = ({ className, ...props }: LayoutHeaderProps) => {
 type LayoutContentProps = HTMLAttributes<HTMLElement>
 
 const LayoutContent = ({ className, ...props }: LayoutContentProps) => {
-	return <main className={className} {...props} />
+	return (
+		<main
+			className={cn('flex flex-1 flex-col px-8 py-11', className)}
+			{...props}
+		/>
+	)
 }
 
 type LayoutFooterProps = HTMLAttributes<HTMLElement>
@@ -56,7 +61,7 @@ type LayoutAsideProps = HTMLAttributes<HTMLElement>
 const LayoutAside = ({ className, ...props }: LayoutAsideProps) => {
 	return (
 		<aside
-			className={cn('w-56 shrink-0 max-lg:hidden', className)}
+			className={cn('w-60 shrink-0 max-lg:hidden', className)}
 			{...props}
 		/>
 	)

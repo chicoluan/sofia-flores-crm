@@ -13,7 +13,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang='pt-BR'>
-			<body className={`${fontEstiana.className}`}>
+			<body className={`overflow-x-hidden  ${fontEstiana.className}`}>
 				<Providers>{children}</Providers>
 			</body>
 		</html>

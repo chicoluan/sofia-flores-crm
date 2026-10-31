@@ -1,6 +1,6 @@
 import Layout from '@sofiaflores/ui/components/layout'
 import type { JSX, ReactNode } from 'react'
-import MainSidebar from './ui/MainSidebar'
+import MainSidebar from './ui/MainSidebar/MainSidebar'
 import { SidebarInset } from '@sofiaflores/ui/components/sidebar'
 
 type DashboardLayoutProps = {
@@ -11,11 +11,11 @@ export default function DashboardLayout({
 	children,
 }: DashboardLayoutProps): JSX.Element {
 	return (
-		<Layout className='flex w-full'>
+		<div className='flex min-h-screen w-full'>
 			<MainSidebar />
-			<SidebarInset className='flex w-full flex-1 flex-col'>
+			<SidebarInset className='flex flex-col flex-1 min-w-0'>
 				{children}
 			</SidebarInset>
-		</Layout>
+		</div>
 	)
 }
