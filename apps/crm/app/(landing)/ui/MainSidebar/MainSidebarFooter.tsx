@@ -1,6 +1,5 @@
 'use client'
 
-import { auth } from '@sofiaflores/better-auth/auth'
 import { authClient } from '@sofiaflores/better-auth/auth-client'
 import { EllipsisVertical, LogOut } from '@sofiaflores/ui'
 import {
@@ -40,7 +39,7 @@ export default function MainSidebarFooter(): JSX.Element {
 								size='lg'
 								className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
 							>
-								<UserAvatar />
+								<UserAvatar className='size-8' />
 								<div
 									className={
 										open ? 'flex items-center justify-between' : 'hidden'
@@ -49,7 +48,7 @@ export default function MainSidebarFooter(): JSX.Element {
 									<div className='flex flex-col text-nowrap text-sm'>
 										<p className='font-semibold text-sm'>Sofia Flores Cariri</p>
 										<p className='font-normal text-xs'>
-											sofiafloresedecoracoes@gmail.com
+											sofiaflorescariri@gmail.com
 										</p>
 									</div>
 									<EllipsisVertical className='size-4' />

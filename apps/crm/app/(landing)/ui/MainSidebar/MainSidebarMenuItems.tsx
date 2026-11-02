@@ -15,8 +15,9 @@ export default function MainSidebarMenuItems({
 	item,
 }: MainSidebarMenuItemsProps): JSX.Element {
 	const pathname = usePathname()
-	const isActive = pathname === item.url
+	const isActive = pathname === `/${item.url}`
 	const route = useRouter()
+
 	return (
 		<SidebarMenuItem>
 			<SidebarMenuButton

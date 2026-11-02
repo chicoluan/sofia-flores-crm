@@ -6,6 +6,7 @@
 		"module": "ESNext",
 		"noImplicitAny": false,
 		"moduleResolution": "node",
+		"ignoreDeprecations": "6.0",
 		"lib": ["ESNext", "DOM"],
 		"strict": true,
 		"esModuleInterop": true,

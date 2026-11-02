@@ -1,5 +1,11 @@
 import type { MainSidebarMenuItem } from '@sofiaflores/db/types'
-import { LayoutDashboard, Users } from '@sofiaflores/ui'
+import {
+	LayoutDashboard,
+	Package,
+	Settings2,
+	ShoppingCartPlus,
+	Users,
+} from '@sofiaflores/ui'
 
 const items: MainSidebarMenuItem[] = [
 	{
@@ -11,6 +17,21 @@ const items: MainSidebarMenuItem[] = [
 		title: 'Clientes',
 		url: 'clients',
 		icon: Users,
+	},
+	{
+		title: 'Gestão de Pedidos',
+		url: 'orders',
+		icon: ShoppingCartPlus,
+	},
+	{
+		title: 'Estoque',
+		url: 'stock',
+		icon: Package,
+	},
+	{
+		title: 'Configurações',
+		url: 'settings',
+		icon: Settings2,
 	},
 ]
 

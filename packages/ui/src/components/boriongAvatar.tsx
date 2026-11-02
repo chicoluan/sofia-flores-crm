@@ -1,19 +1,9 @@
 import Avatar from 'boring-avatars'
-import type { ButtonHTMLAttributes, JSX } from 'react'
 import colors from 'tailwindcss/colors'
+import type { ComponentProps, HTMLAttributes, JSX } from 'react'
 
-export interface AvatarProps {
-	size?: number | string
-	square?: boolean
-	name?: string
-	variant?: 'marble' | 'beam' | 'pixel' | 'sunset' | 'ring' | 'bauhaus'
-	colors?: string[]
-}
-
-type RandomAvatarProps = AvatarProps &
-	Omit<ButtonHTMLAttributes<HTMLButtonElement>, keyof AvatarProps> & {
-		className?: string
-	}
+type RandomAvatarProps = ComponentProps<typeof Avatar> &
+	HTMLAttributes<HTMLDivElement>
 
 export default function BoringAvatar({
 	className,
@@ -27,7 +17,7 @@ export default function BoringAvatar({
 	...props
 }: RandomAvatarProps): JSX.Element {
 	return (
-		<span type='button' className={className} {...props}>
+		<div className={className} {...props}>
 			<Avatar
 				colors={colorProp}
 				name={name}
@@ -35,6 +25,6 @@ export default function BoringAvatar({
 				square={square}
 				variant={variant}
 			/>
-		</span>
+		</div>
 	)
 }

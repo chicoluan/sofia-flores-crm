@@ -28,6 +28,7 @@ export default function MainSidebarMenuCollapsible({
 
 	const isChildActive = item.items?.some((sub) => pathname === sub.url) ?? false
 	const isParentActive = pathname === item.url || isChildActive
+
 	return (
 		<Collapsible
 			key={item.title}

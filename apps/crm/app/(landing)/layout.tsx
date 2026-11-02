@@ -10,7 +10,7 @@ export default function DashboardLayout({
 	children,
 }: DashboardLayoutProps): JSX.Element {
 	return (
-		<div className='flex flex-col min-h-screen w-full'>
+		<div className='flex flex-1'>
 			<MainSidebar />
 			<SidebarInset>{children}</SidebarInset>
 		</div>

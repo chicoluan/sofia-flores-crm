@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next'
 
 export const rootMetadata: Metadata = {
 	icons: {
-		icon: [{ url: '/favicon.', type: 'image/svg+xml' }],
+		icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
 	},
 	title: {
 		default: 'Sofia Flores - CRM',

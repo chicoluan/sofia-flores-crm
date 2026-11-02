@@ -3,6 +3,7 @@ const nextConfig = {
 	transpilePackages: [
 		'@sofiaflores/ui',
 		'@sofiaflores/better-auth',
+		'@sofiaflores/tsconfig',
 		'@sofiaflores/db',
 	],
 	devIndicators: false,
