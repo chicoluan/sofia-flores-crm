@@ -1,0 +1,15 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"extends": "@sofiaflores/tsconfig/base.json",
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"noImplicitAny": false,
+		"moduleResolution": "node",
+		"lib": ["ESNext", "DOM"],
+		"strict": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"types": ["node"]
+	}
+}
