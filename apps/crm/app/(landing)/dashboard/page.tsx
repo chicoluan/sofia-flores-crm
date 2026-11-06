@@ -1,3 +1,9 @@
+import {
+	Breadcrumb,
+	BreadcrumbItem,
+	BreadcrumbLink,
+	BreadcrumbList,
+} from '@sofiaflores/ui/components/breadcrumb'
 import { Separator } from '@sofiaflores/ui/components/separator'
 import { SidebarTrigger } from '@sofiaflores/ui/components/sidebar'
 import type { JSX } from 'react'
@@ -11,6 +17,13 @@ export default function DashboardPage(): JSX.Element {
 					orientation='vertical'
 					className='mr-2 data-[orientation=vertical]:h-4:'
 				/>
+				<Breadcrumb>
+					<BreadcrumbList>
+						<BreadcrumbItem className='hidden md:block'>
+							<BreadcrumbLink href='/dashboard'>Dashboard</BreadcrumbLink>
+						</BreadcrumbItem>
+					</BreadcrumbList>
+				</Breadcrumb>
 			</div>
 		</header>
 	)

@@ -1,5 +1,6 @@
 import type { MainSidebarMenuItem } from '@sofiaflores/db/types'
 import {
+	Flower2,
 	LayoutDashboard,
 	Package,
 	Settings2,
@@ -9,24 +10,35 @@ import {
 
 const items: MainSidebarMenuItem[] = [
 	{
-		title: 'Dashboard',
+		title: 'Início',
 		url: '/dashboard',
 		icon: LayoutDashboard,
 	},
 	{
 		title: 'Clientes',
-		url: 'clients',
+		url: '/clients',
 		icon: Users,
 	},
 	{
 		title: 'Gestão de Pedidos',
-		url: 'orders',
+		url: '/orders',
 		icon: ShoppingCartPlus,
 	},
 	{
 		title: 'Estoque',
-		url: 'stock',
+		url: '/stock',
 		icon: Package,
+		items: [
+			{
+				title: 'Flores',
+				icon: Flower2,
+				url: '/stock/flowers',
+			},
+			// {
+			// 	title: 'Relatórios',
+			// 	icon:
+			// }
+		],
 	},
 	{
 		title: 'Configurações',
