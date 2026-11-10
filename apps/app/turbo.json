@@ -2,20 +2,24 @@
 	"$schema": "https://turbo.build/schema.json",
 	"extends": ["//"],
 	"tasks": {
-		"build": {
-			"dependsOn": ["^build", "db:generate"],
-			"outputs": [".next/**", "dist/**"]
+		"db:generate": {
+			"outputs": ["src/lib/generated/**"],
+			"env": ["DATABASE_URL"]
 		},
-		"dev": {
-			"dependsOn": ["@sofiaflores/ui#build"],
+		"db:migrate": {
 			"cache": false,
-			"persistent": false
+			"env": ["DATABASE_URL"]
 		},
-		"lint": {
-			"dependsOn": ["^lint"]
+		"db:deploy": {
+			"cache": false,
+			"env": ["DATABASE_URL"]
 		},
-		"check-types": {
-			"dependsOn": ["^check-types"]
+		"db:studio": {
+			"cache": false
+		},
+		"build": {
+			"dependsOn": ["^build", "db:generate", "db:migrate"],
+			"outputs": ["dist/**"]
 		}
 	}
 }
