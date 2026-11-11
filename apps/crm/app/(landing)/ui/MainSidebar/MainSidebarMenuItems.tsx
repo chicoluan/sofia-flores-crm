@@ -1,5 +1,5 @@
 'use client'
-import type { MainSidebarMenuItem } from '@sofiaflores/db/types'
+import type { MainSidebarMenuItem } from '@sofiaflores/db/schemas/MainSidebarSchema'
 import {
 	SidebarMenuButton,
 	SidebarMenuItem,

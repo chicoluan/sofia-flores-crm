@@ -1,10 +1,10 @@
 'use client'
 
-import type { MainSidebarMenuItem } from '@sofiaflores/db/types'
 import { SidebarMenu } from '@sofiaflores/ui/components/sidebar'
 import type { JSX } from 'react'
 import MainSidebarMenuCollapsible from './MainSidebarMenuCollapsible'
 import MainSidebarMenuItems from './MainSidebarMenuItems'
+import type { MainSidebarMenuItem } from '@sofiaflores/db/schemas/MainSidebarSchema'
 
 type MainSidebarMenuProps = {
 	items: MainSidebarMenuItem[]

@@ -18,3 +18,7 @@ export const MainSidebarMenuItemSchema = z.object({
 	isActive: z.boolean().optional(),
 	items: z.array(MainSidebarSubItemSchema).optional(),
 })
+
+// TYPES
+export type MainSidebarSubItem = z.infer<typeof MainSidebarSubItemSchema>
+export type MainSidebarMenuItem = z.infer<typeof MainSidebarMenuItemSchema>

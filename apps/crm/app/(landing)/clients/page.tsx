@@ -1,11 +1,10 @@
 import type { JSX } from 'react'
+import ClientsHeader from './ui/header'
 
 export default function ClientsPages(): JSX.Element {
 	return (
-		<div className='flex flex-1 flex-col gap-16 overflow-hidden'>
-			<div className='flex items-center justify-between'>
-				<h1 className='font-semibold text-3xl'>Clients</h1>
-			</div>
-		</div>
+		<section className='flex flex-1 py-16 px-10 flex-col gap-16 overflow-hidden'>
+			<ClientsHeader />
+		</section>
 	)
 }

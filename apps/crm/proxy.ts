@@ -1,5 +1,4 @@
 import { auth } from '@sofiaflores/better-auth/auth'
-import { headers } from 'next/headers'
 import { NextResponse, type NextRequest } from 'next/server'
 
 const allowedOrigins = ['localtest.me', 'localhost']
@@ -7,52 +6,66 @@ const allowedOrigins = ['localtest.me', 'localhost']
 export async function proxy(req: NextRequest) {
 	const { pathname } = req.nextUrl
 
-	const isPublic =
-		pathname === '/' ||
-		pathname.startsWith('/auth') ||
-		pathname.startsWith('/api/auth') ||
+	// Static assets
+	const isStaticAsset =
 		pathname.startsWith('/_next') ||
 		pathname.startsWith('/favicon') ||
+		pathname.startsWith('/img') ||
+		pathname.startsWith('/assets') ||
 		pathname.startsWith('/robots') ||
 		pathname.startsWith('/manifest') ||
 		pathname.startsWith('/sitemap')
-
-	if (isPublic) {
-		return NextResponse.next()
-	}
-
-	const isStaticAsset =
-		pathname.startsWith('/_next') ||
-		pathname.startsWith('/favicon.ico') ||
-		pathname.startsWith('/img') ||
-		pathname.startsWith('/assets')
 
 	if (isStaticAsset) {
 		return NextResponse.next()
 	}
 
+	// Handle CORS preflight
+	if (req.method === 'OPTIONS') {
+		return new NextResponse(null, { status: 204 })
+	}
+
+	// Get current session
 	const session = await auth.api.getSession({
-		headers: await headers(),
+		headers: req.headers,
 	})
 
+	const isAuthPage = pathname.startsWith('/auth')
 	const isJoinPage = pathname.startsWith('/join')
 	const isAuthApi = pathname.startsWith('/api/auth')
-	const isLandingPage = pathname === '/'
 
-	if (!session && !isJoinPage && !isLandingPage && !isAuthApi) {
+	// Root redirect
+	if (pathname === '/') {
+		return NextResponse.redirect(
+			new URL(session ? '/dashboard' : '/join', req.url),
+		)
+	}
+
+	// Public routes
+	if (isAuthApi || isAuthPage) {
+		return NextResponse.next()
+	}
+
+	// Unauthenticated users
+	if (!session && !isJoinPage) {
 		return NextResponse.redirect(new URL('/join', req.url))
 	}
 
+	// Authenticated users shouldn't access join
 	if (session && isJoinPage) {
-		return NextResponse.redirect(new URL('/dashboard', req.url)) // Change '/dashboard' to your main app route
+		return NextResponse.redirect(new URL('/dashboard', req.url))
 	}
 
-	const origin = req.headers.get('origin')
+	// Continue request
 	const response = NextResponse.next()
+
+	// CORS headers
+	const origin = req.headers.get('origin')
 
 	if (origin) {
 		const hostname = new URL(origin).hostname
-		if (allowedOrigins.some((d) => hostname.endsWith(d))) {
+
+		if (allowedOrigins.some((domain) => hostname.endsWith(domain))) {
 			response.headers.set('Access-Control-Allow-Origin', origin)
 			response.headers.set('Access-Control-Allow-Credentials', 'true')
 			response.headers.set(
@@ -66,9 +79,9 @@ export async function proxy(req: NextRequest) {
 		}
 	}
 
-	if (req.method === 'OPTIONS') {
-		return new NextResponse(null, { status: 204, headers: response.headers })
-	}
-
 	return response
+}
+
+export const config = {
+	matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 }

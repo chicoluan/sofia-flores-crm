@@ -1,4 +1,4 @@
-import type { MainSidebarMenuItem } from '@sofiaflores/db/types'
+import type { MainSidebarMenuItem } from '@sofiaflores/db/schemas/MainSidebarSchema'
 import {
 	Flower2,
 	LayoutDashboard,
@@ -42,7 +42,7 @@ const items: MainSidebarMenuItem[] = [
 	},
 	{
 		title: 'Configurações',
-		url: 'settings',
+		url: '/settings',
 		icon: Settings2,
 	},
 ]

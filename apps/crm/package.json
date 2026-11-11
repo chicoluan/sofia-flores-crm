@@ -11,20 +11,24 @@
 		"check-types": "next typegen && tsc --noEmit"
 	},
 	"dependencies": {
-		"@sofiaflores/ui": "workspace:*",
-		"@sofiaflores/tsconfig": "workspace:*",
 		"@sofiaflores/better-auth": "workspace:*",
 		"@sofiaflores/db": "workspace:*",
+		"@sofiaflores/tsconfig": "workspace:*",
+		"@sofiaflores/ui": "workspace:*",
+		"date-fns": "^4.4.0",
 		"next": "16.3.8",
 		"react": "19.2.8",
-		"react-dom": "19.2.8"
+		"react-dom": "19.2.8",
+		"react-hook-form": "^7.91.0",
+		"react-use": "^17.6.1",
+		"zustand": "^5.1.0"
 	},
 	"devDependencies": {
 		"@tailwindcss/postcss": "^4",
-		"tailwindcss": "^4",
 		"@types/node": "26.4.1",
 		"@types/react": "19.2.18",
 		"@types/react-dom": "19.2.5",
+		"tailwindcss": "^4",
 		"typescript": "7.0.2"
 	}
 }
