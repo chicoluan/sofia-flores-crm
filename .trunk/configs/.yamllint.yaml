@@ -8,4 +8,4 @@ rules:
     quote-type: single
     required: only-when-needed
   truthy:
-    allowed-values: ['true', 'false', 'yes', 'no', 'on']
+    allowed-values: ["true", "false", "yes", "no", "on"]
