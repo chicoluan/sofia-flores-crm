@@ -1,0 +1,21 @@
+{
+	"$schema": "https://turbo.build/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build", "db:generate"],
+			"outputs": [".next/**", "dist/**"]
+		},
+		"dev": {
+			"dependsOn": ["@sofiaflores/ui#build"],
+			"cache": false,
+			"persistent": false
+		},
+		"lint": {
+			"dependsOn": ["^lint"]
+		},
+		"check-types": {
+			"dependsOn": ["^check-types"]
+		}
+	}
+}

@@ -1,0 +1,25 @@
+model Profile {
+    id           String   @id @default(ulid())
+    userId       String
+    firstName    String
+    lastName     String   @default("")
+    zipCode      String   @default("")
+    street       String   @default("")
+    complement   String   @default("")
+    number       String   @default("")
+    neighborhood String   @default("")
+    city         String   @default("")
+    state        String   @default("")
+    country      String   @default("BR")
+    fullName     String   @default("")
+    document     String   @default("")
+    phone        String   @default("")
+    language     String   @default("pt-BR")
+    timezone     String   @default("America/Sao_Paulo")
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @default(now()) @updatedAt
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    @@map("profiles")
+}

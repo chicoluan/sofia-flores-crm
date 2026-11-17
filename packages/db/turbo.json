@@ -1,0 +1,25 @@
+{
+	"$schema": "https://turbo.build/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		"db:generate": {
+			"outputs": ["src/lib/generated/**"],
+			"env": ["DATABASE_URL"]
+		},
+		"db:migrate": {
+			"cache": false,
+			"env": ["DATABASE_URL"]
+		},
+		"db:deploy": {
+			"cache": false,
+			"env": ["DATABASE_URL"]
+		},
+		"db:studio": {
+			"cache": false
+		},
+		"build": {
+			"dependsOn": ["^build", "db:generate", "db:migrate"],
+			"outputs": ["dist/**"]
+		}
+	}
+}

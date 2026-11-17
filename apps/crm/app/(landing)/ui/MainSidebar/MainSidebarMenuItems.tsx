@@ -1,0 +1,35 @@
+'use client'
+import type { MainSidebarMenuItem } from '@sofiaflores/db/schemas/MainSidebarSchema'
+import {
+	SidebarMenuButton,
+	SidebarMenuItem,
+} from '@sofiaflores/ui/components/sidebar'
+import { usePathname, useRouter } from 'next/navigation'
+import type { JSX } from 'react'
+
+type MainSidebarMenuItemsProps = {
+	item: MainSidebarMenuItem
+}
+
+export default function MainSidebarMenuItems({
+	item,
+}: MainSidebarMenuItemsProps): JSX.Element {
+	const pathname = usePathname()
+
+	const isActive = pathname === item.url || pathname.startsWith(`${item.url}/`)
+	const route = useRouter()
+
+	return (
+		<SidebarMenuItem>
+			<SidebarMenuButton
+				isActive={isActive}
+				className='hover:cursor-pointer'
+				tooltip={item.title}
+				onClick={() => route.push(item.url)}
+			>
+				{item.icon && <item.icon />}
+				<span>{item.title}</span>
+			</SidebarMenuButton>
+		</SidebarMenuItem>
+	)
+}

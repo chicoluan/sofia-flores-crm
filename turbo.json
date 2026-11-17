@@ -2,10 +2,33 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"ui": "tui",
 	"tasks": {
+		"db:generate": {
+			"cache": false
+		},
+		"db:studio": {
+			"cache": false
+		},
+		"db:migrate": {
+			"cache": false
+		},
+		"db:build": {
+			"dependsOn": ["db:generate"],
+			"outputs": ["packages/db/dist/**"]
+		},
+		"db:deploy": {
+			"cache": false
+		},
 		"build": {
 			"dependsOn": ["^build"],
 			"inputs": ["$TURBO_DEFAULT$", ".env*"],
-			"outputs": [".next/**", "!.next/cache/**", "!.next/dev/**"]
+			"outputs": [".next/**", "!.next/cache/**", "!.next/dev/**"],
+			"env": [
+				"DATABASE_URL",
+				"BETTER_AUTH_SECRET",
+				"BETTER_AUTH_URL",
+				"GOOGLE_CLIENT_ID",
+				"GOOGLE_CLIENT_SECRET"
+			]
 		},
 		"lint": {
 			"dependsOn": ["^lint"]

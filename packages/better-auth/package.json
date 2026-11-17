@@ -1,0 +1,18 @@
+{
+	"name": "@sofiaflores/better-auth",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"dependencies": {
+		"@sofiaflores/db": "workspace:*",
+		"@sofiaflores/tsconfig": "workspace:*",
+		"better-auth": "^1.7.14"
+	},
+	"exports": {
+		"./auth": "./src/auth.ts",
+		"./auth-client": "./src/auth-client.ts"
+	},
+	"devDependencies": {
+		"@types/node": "^26.6.5"
+	}
+}
