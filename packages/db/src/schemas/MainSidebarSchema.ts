@@ -9,6 +9,7 @@ export const MainSidebarSubItemSchema = z.object({
 	title: z.string(),
 	url: z.string(),
 	icon: iconSchema,
+	isActive: z.boolean().optional(),
 })
 
 export const MainSidebarMenuItemSchema = z.object({

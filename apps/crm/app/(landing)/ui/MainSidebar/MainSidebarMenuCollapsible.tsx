@@ -15,7 +15,7 @@ import {
 	SidebarMenuSubItem,
 } from '@sofiaflores/ui/components/sidebar'
 import { usePathname } from 'next/navigation'
-import type { JSX } from 'react'
+import { useState, type JSX } from 'react'
 
 type MainSidebarMenuCollapsibleProps = {
 	item: MainSidebarMenuItem
@@ -25,7 +25,6 @@ export default function MainSidebarMenuCollapsible({
 	item,
 }: MainSidebarMenuCollapsibleProps): JSX.Element {
 	const pathname = usePathname()
-
 	const isChildActive = item.items?.some((sub) => pathname === sub.url) ?? false
 	const isParentActive = pathname === item.url || isChildActive
 

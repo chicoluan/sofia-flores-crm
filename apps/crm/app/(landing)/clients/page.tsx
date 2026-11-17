@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import ClientsHeader from './ui/header'
+import ClientsHeader from './ui/ClientsHeader'
 
 export default function ClientsPages(): JSX.Element {
 	return (

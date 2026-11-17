@@ -1,5 +1,8 @@
 import { useDialog } from '@/hooks/store/use-dialog-store'
-import type { ClientForm } from '@sofiaflores/db/schemas/clients/ClientFormSchema'
+import {
+	ClientFormSchema,
+	type ClientForm,
+} from '@sofiaflores/db/schemas/clients/ClientFormSchema'
 import {
 	Dialog,
 	DialogClose,
@@ -14,18 +17,36 @@ import type { JSX } from 'react'
 import { useForm } from 'react-hook-form'
 import AddClientDialogBody from './AddClientDialogBody'
 import { Button } from '@sofiaflores/ui/components/button'
+import api from '@/lib/axios'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 export default function AddClientDialog(): JSX.Element {
-	const { isOpen, onClose, data, type } = useDialog()
+	const { isOpen, onClose, type, data } = useDialog()
 
 	const isDialogOpen = isOpen && type === 'addClient'
 
-	const methods = useForm<ClientForm>()
+	// Methods
+	const methods = useForm<ClientForm>({
+		resolver: zodResolver(ClientFormSchema),
+		defaultValues: {
+			firstName: '',
+			lastName: '',
+			cpf: '',
+			email: '',
+			phone: '',
+			birthday: '',
+			notes: '',
+		},
+	})
 
-	const onSubmitForm = async () => {
+	// Submit Form
+	const onSubmitForm = async (values: ClientForm) => {
 		try {
-			// Call the api route to add the client using the query
-			console.log('Create the client')
+			const { data } = await api.post('/clients', values)
+
+			console.log('Client created:', data)
+			onClose()
+			methods.reset()
 		} catch (error) {
 			console.error(error)
 		}

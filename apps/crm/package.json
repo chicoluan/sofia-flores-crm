@@ -11,10 +11,12 @@
 		"check-types": "next typegen && tsc --noEmit"
 	},
 	"dependencies": {
+		"@hookform/resolvers": "^7.0.6",
 		"@sofiaflores/better-auth": "workspace:*",
 		"@sofiaflores/db": "workspace:*",
 		"@sofiaflores/tsconfig": "workspace:*",
 		"@sofiaflores/ui": "workspace:*",
+		"axios": "^1.21.1",
 		"date-fns": "^4.4.0",
 		"next": "16.3.8",
 		"react": "19.2.8",

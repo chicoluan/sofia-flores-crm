@@ -20,7 +20,7 @@ const items: MainSidebarMenuItem[] = [
 		icon: Users,
 	},
 	{
-		title: 'Gestão de Pedidos',
+		title: 'Pedidos',
 		url: '/orders',
 		icon: ShoppingCartPlus,
 	},
@@ -34,10 +34,6 @@ const items: MainSidebarMenuItem[] = [
 				icon: Flower2,
 				url: '/stock/flowers',
 			},
-			// {
-			// 	title: 'Relatórios',
-			// 	icon:
-			// }
 		],
 	},
 	{
