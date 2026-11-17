@@ -3,6 +3,7 @@ packages:
   - "packages/*"
   - "tools/*"
 allowBuilds:
+  '@biomejs/biome': false
   "@prisma/engines": true
   esbuild: true
   prisma: true

@@ -1,0 +1,168 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@utility bg-noise {
+	background-image: url("/assets/noise-texture.png");
+	background-repeat: repeat;
+	background-size: 120px 120px;
+}
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+	--font-sans: var(--font-poppins);
+	--font-kaftan: var(--font-kaftan-family);
+	--color-sidebar-ring: var(--sidebar-ring);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar: var(--sidebar);
+	--color-chart-5: var(--chart-5);
+	--color-chart-4: var(--chart-4);
+	--color-chart-3: var(--chart-3);
+	--color-chart-2: var(--chart-2);
+	--color-chart-1: var(--chart-1);
+	--color-ring: var(--ring);
+	--color-input: var(--input);
+	--color-border: var(--border);
+	--color-destructive: var(--destructive);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-accent: var(--accent);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-muted: var(--muted);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-secondary: var(--secondary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-primary: var(--primary);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-popover: var(--popover);
+	--color-card-foreground: var(--card-foreground);
+	--color-card: var(--card);
+	--color-foreground: var(--foreground);
+	--color-background: var(--background);
+	--radius-sm: calc(var(--radius) * 0.6);
+	--radius-md: calc(var(--radius) * 0.8);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) * 1.4);
+	--radius-2xl: calc(var(--radius) * 1.8);
+	--radius-3xl: calc(var(--radius) * 2.2);
+	--radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+	/* Sofia Flores - Brand */
+	--background: #f0e8e0;
+	--foreground: #424d44;
+
+	/* Cards */
+	--card: #f8f0e8;
+	--card-foreground: #424d44;
+
+	/* Popovers */
+	--popover: #f8f0e8;
+	--popover-foreground: #424d44;
+
+	/* Primary - Sage Green */
+	--primary: #fcf5eb;
+	--primary-foreground: #ffffff;
+
+	/* Secondary */
+	--secondary: #e8e0d8;
+	--secondary-foreground: #424d44;
+
+	/* Muted */
+	--muted: #eae3db;
+	--muted-foreground: #77776f;
+
+	/* Accent */
+	--accent: #dce5d9;
+	--accent-foreground: #424d44;
+
+	/* Feedback */
+	--destructive: #d94b4f;
+
+	/* Borders and inputs */
+	--border: #ded5cb;
+	--input: #ded5cb;
+	--ring: #668160;
+
+	/* Floral palette */
+	--chart-1: #668160;
+	--chart-2: #dfafc5;
+	--chart-3: #f1b09b;
+	--chart-4: #f5a43d;
+	--chart-5: #ed4146;
+
+	/* Radius */
+	--radius: 0.875rem;
+
+	/* Sidebar */
+	--sidebar: #f8f0e8;
+	--sidebar-foreground: #424d44;
+	--sidebar-primary: #668160;
+	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: #e8e0d8;
+	--sidebar-accent-foreground: #424d44;
+	--sidebar-border: #ded5cb;
+	--sidebar-ring: #668160;
+}
+
+.dark {
+	--background: #292f29;
+	--foreground: #f0e8e0;
+
+	--card: #343d34;
+	--card-foreground: #f0e8e0;
+
+	--popover: #343d34;
+	--popover-foreground: #f0e8e0;
+
+	--primary: #8fa98a;
+	--primary-foreground: #292f29;
+
+	--secondary: #414b40;
+	--secondary-foreground: #f0e8e0;
+
+	--muted: #3a433a;
+	--muted-foreground: #bdbdb1;
+
+	--accent: #465746;
+	--accent-foreground: #f0e8e0;
+
+	--destructive: #f16c6f;
+
+	--border: #4a5449;
+	--input: #4a5449;
+	--ring: #8fa98a;
+
+	--chart-1: #8fa98a;
+	--chart-2: #dfafc5;
+	--chart-3: #f1b09b;
+	--chart-4: #f5a43d;
+	--chart-5: #ed4146;
+
+	--sidebar: #343d34;
+	--sidebar-foreground: #f0e8e0;
+	--sidebar-primary: #8fa98a;
+	--sidebar-primary-foreground: #292f29;
+	--sidebar-accent: #414b40;
+	--sidebar-accent-foreground: #f0e8e0;
+	--sidebar-border: #4a5449;
+	--sidebar-ring: #8fa98a;
+}
+
+@layer base {
+	* {
+		@apply border-border outline-ring/50;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
+	html {
+		@apply font-sans;
+	}
+}
