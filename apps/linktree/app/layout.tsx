@@ -24,7 +24,7 @@ export default function RootLayout({
 					fontSans.className,
 				)}
 			>
-				<ThemeProvider>{children}</ThemeProvider>
+				{children}
 			</body>
 		</html>
 	)
