@@ -5,6 +5,7 @@
 	"exports": {
 		"./styles.css": "./src/globals.css",
 		"./components/*": "./src/components/*.tsx",
+		"./motion/*": "./src/motion/*.tsx",
 		"./lib/*": "./src/lib/*.ts",
 		".": "./src/index.ts"
 	},
@@ -37,6 +38,7 @@
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"lucide-react": "^1.62.0",
+		"motion": "^14.14.0",
 		"postcss": "^8.5.32",
 		"react": "19.2.8",
 		"react-day-picker": "^10.0.2",
