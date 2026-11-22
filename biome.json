@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.6.8/schema.json",
   "assist": {
     "actions": {
       "source": {
@@ -10,23 +10,8 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
-      "correctness": {
-        "noUnusedImports": "error",
-        "noUnusedVariables": "error",
-        "useJsxKeyInIterable": "error"
-      },
-      "nursery": {
-        "useSortedClasses": {
-          "level": "warn",
-          "options": {}
-        }
-      },
-      "style": {
-        "recommended": true,
-        "useBlockStatements": "error"
-      }
-    }
+      "preset": "recommended"
+    },
   },
   "formatter": {
     "enabled": true,

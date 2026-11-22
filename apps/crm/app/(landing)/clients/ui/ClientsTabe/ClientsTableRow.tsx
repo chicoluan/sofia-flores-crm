@@ -1,7 +1,7 @@
 'use client'
 
 import type { Client } from '@sofiaflores/db'
-import { Columns, ReactTable } from '@sofiaflores/ui'
+import { ReactTable } from '@sofiaflores/ui'
 import { TableCell, TableRow } from '@sofiaflores/ui/components/table'
 import { useRouter } from 'next/navigation'
 import type { JSX } from 'react'
@@ -9,6 +9,7 @@ import type { JSX } from 'react'
 type ClientsTableRowProps = {
   table: ReactTable.Table<Client>
 }
+
 export default function ClientsTableRow({
   table,
 }: ClientsTableRowProps): JSX.Element {
@@ -37,7 +38,10 @@ export default function ClientsTableRow({
         ))
       ) : (
         <TableRow>
-          <TableCell colSpan={Columns.length} className='h-24 text-center'>
+          <TableCell
+            colSpan={table.getAllLeafColumns().length}
+            className='h-24 text-center'
+          >
             Sem resultado
           </TableCell>
         </TableRow>

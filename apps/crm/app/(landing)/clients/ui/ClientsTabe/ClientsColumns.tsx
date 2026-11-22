@@ -46,7 +46,57 @@ export const ClientColumns: ReactTable.ColumnDef<Client>[] = [
     },
     cell: ({ cell }) => (
       <p className='line-clamp-1 flex flex-1 items-center truncate'>
-        {cell.row.original.firstname}
+        {cell.row.original.firstname + ' ' + cell.row.original.lastname}
+      </p>
+    ),
+  },
+
+  {
+    accessorKey: 'cpf',
+    id: 'cpf',
+    header: ({ column }) => {
+      return (
+        <div className='flex items-center'>
+          Cpf
+          <Button
+            variant='ghost'
+            size='icon'
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            <ArrowUpDown className='h-4 w-4' />
+          </Button>
+        </div>
+      )
+    },
+    cell: ({ cell }) => (
+      <p className='line-clamp-1 flex flex-1 items-center truncate'>
+        {cell.row.original.cpf || '-'}
+      </p>
+    ),
+  },
+
+   {
+    accessorKey: 'birthday',
+    id: 'birthday',
+    header: ({ column }) => {
+      return (
+        <div className='flex items-center'>
+          Data de Nascimento
+          <Button
+            variant='ghost'
+            size='icon'
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            <ArrowUpDown className='h-4 w-4' />
+          </Button>
+        </div>
+      )
+    },
+    cell: ({ cell }) => (
+      <p className='line-clamp-1 flex flex-1 items-center truncate'>
+        {cell.row.original.birthday
+        ? new Date(cell.row.original.birthday).toLocaleDateString('pt-BR')
+        : '-'}
       </p>
     ),
   },

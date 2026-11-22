@@ -85,4 +85,5 @@ export const ClientFormSchema = z.object({
 })
 
 // TYPES
-export type ClientForm = z.infer<typeof ClientFormSchema>
+export type ClientFormInput = z.input<typeof ClientFormSchema>
+export type ClientForm = z.output<typeof ClientFormSchema>

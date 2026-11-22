@@ -2,6 +2,7 @@ import { useDialog } from '@/hooks/store/use-dialog-store'
 import {
 	ClientFormSchema,
 	type ClientForm,
+	type ClientFormInput,
 } from '@sofiaflores/db/schemas/clients/ClientFormSchema'
 import {
 	Dialog,
@@ -19,14 +20,14 @@ import AddClientDialogBody from './AddClientDialogBody'
 import { Button } from '@sofiaflores/ui/components/button'
 import api from '@/lib/axios'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useRouter } from 'next/navigation'
 
 export default function AddClientDialog(): JSX.Element {
 	const { isOpen, onClose, type, data } = useDialog()
-
+ 	const router = useRouter()
 	const isDialogOpen = isOpen && type === 'addClient'
 
-	// Methods
-	const methods = useForm<ClientForm>({
+	const methods = useForm<ClientFormInput, unknown, ClientForm>({
 		resolver: zodResolver(ClientFormSchema),
 		defaultValues: {
 			firstName: '',
@@ -39,12 +40,10 @@ export default function AddClientDialog(): JSX.Element {
 		},
 	})
 
-	// Submit Form
 	const onSubmitForm = async (values: ClientForm) => {
 		try {
 			const { data } = await api.post('/clients', values)
 
-			console.log('Client created:', data)
 			onClose()
 			methods.reset()
 		} catch (error) {

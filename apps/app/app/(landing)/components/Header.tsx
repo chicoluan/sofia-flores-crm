@@ -9,7 +9,6 @@ type HeaderProps = {
 }
 
 export default function Header({ user }: HeaderProps): JSX.Element {
-	console.log(user)
 	return (
 		<div className='flex items-center justify-around px-16 py-4 bg-[#414A43] h-28'>
 			<LogoComplete className='w-56 text-[414A43]' />

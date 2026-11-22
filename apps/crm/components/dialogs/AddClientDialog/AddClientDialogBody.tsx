@@ -17,6 +17,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from '@sofiaflores/ui/components/popover'
+import { Separator } from '@sofiaflores/ui/components/separator'
 import { Textarea } from '@sofiaflores/ui/components/textarea'
 import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
@@ -123,6 +124,8 @@ export default function AddClientDialogBody(): JSX.Element {
 					)}
 				/>
 			</div>
+
+			<Separator />
 
 			{/* Contact information */}
 			<div className='flex flex-col gap-3'>

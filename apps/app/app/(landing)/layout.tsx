@@ -12,11 +12,6 @@ type LandingLayoutProps = {
 export default async function LadingLayout({
 	children,
 }: LandingLayoutProps): Promise<JSX.Element> {
-	const session = await auth.api.getSession({
-		headers: await headers(),
-	})
-
-	console.log(session)
 	return (
 		<Layout className='flex min-h-screen w-full flex-col'>
 			<Layout.Header className='fixed w-full'>

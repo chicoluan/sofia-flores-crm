@@ -1,4 +1,5 @@
 import AddClientDialog from '@/components/dialogs/AddClientDialog/AddClientDialog'
+import AddFlowersDialog from '@/components/dialogs/AddFlowersDialog/AddFlowersDialog'
 import { useMountedState } from 'react-use'
 
 export const DialogProvider = () => {
@@ -7,5 +8,8 @@ export const DialogProvider = () => {
 		return null
 	}
 
-	return <AddClientDialog />
+	return <>
+	<AddClientDialog />
+	<AddFlowersDialog />
+	</>
 }

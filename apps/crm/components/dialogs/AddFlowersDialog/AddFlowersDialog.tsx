@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import {
 	FlowersFormSchema,
 	type FlowersForm,
+	type FlowersFormInput,
 } from '@sofiaflores/db/schemas/stock/flowers/FlowersFormSchema'
 import { Button } from '@sofiaflores/ui/components/button'
 import {
@@ -25,7 +26,7 @@ export default function AddFlowersDialog(): JSX.Element {
 	const isDialogOpen = isOpen && type === 'addFlower'
 
 	// Methods
-	const methods = useForm<FlowersForm>({
+	const methods = useForm<FlowersFormInput, unknown, FlowersForm>({
 		resolver: zodResolver(FlowersFormSchema),
 		defaultValues: {
 			name: '',
@@ -46,8 +47,6 @@ export default function AddFlowersDialog(): JSX.Element {
 	const onSubmitForm = async (values: FlowersForm) => {
 		try {
 			const { data } = await api.post('/stock/flowers', values)
-
-			console.log('Client created:', data)
 			onClose()
 			methods.reset()
 		} catch (error) {

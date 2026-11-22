@@ -6,9 +6,6 @@ import fetchAllClients from '@/lib/dal/clients'
 
 export default async function ClientsPages(): Promise<JSX.Element> {
   const clients = await fetchAllClients()
-
-  console.log(clients)
-
   return (
     <section className='flex flex-1 flex-col gap-16 overflow-hidden px-10 py-16'>
       <ClientsHeader />
