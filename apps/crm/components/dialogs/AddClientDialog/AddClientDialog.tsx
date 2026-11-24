@@ -26,7 +26,7 @@ export default function AddClientDialog(): JSX.Element {
   const { isOpen, onClose, type, data } = useDialog()
   const router = useRouter()
   const isDialogOpen = isOpen && type === 'addClient'
-
+  console.log(data)
   const methods = useForm<ClientFormInput, unknown, ClientForm>({
     resolver: zodResolver(ClientFormSchema),
     defaultValues: {
@@ -43,7 +43,7 @@ export default function AddClientDialog(): JSX.Element {
   const onSubmitForm = async (values: ClientForm) => {
     try {
       const { data } = await api.post('/clients', values)
-
+      console.log(data)
       onClose()
       methods.reset()
       router.refresh()

@@ -22,13 +22,13 @@ lint:
     - dotenv-linter
     - checkov
     - prettier
+    - trivy
   enabled:
     - biome@1.9.4
     - actionlint@1.7.1
     - oxipng@9.1.1
     - svgo@3.3.2
     - git-diff-check
-    - trivy@0.52.2
     - trufflehog@3.79.0
     - yamllint@1.35.1
 actions:

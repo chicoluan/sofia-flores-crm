@@ -46,7 +46,7 @@ export const ClientColumns: ReactTable.ColumnDef<Client>[] = [
     },
     cell: ({ cell }) => (
       <p className='line-clamp-1 flex flex-1 items-center truncate'>
-        {cell.row.original.firstname + ' ' + cell.row.original.lastname}
+        {`${cell.row.original.firstname} ${cell.row.original.lastname}`}
       </p>
     ),
   },

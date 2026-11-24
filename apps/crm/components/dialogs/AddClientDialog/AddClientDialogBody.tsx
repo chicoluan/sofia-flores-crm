@@ -30,7 +30,7 @@ export default function AddClientDialogBody(): JSX.Element {
   return (
     <div className='flex flex-col gap-4'>
       <div className='flex flex-col gap-3'>
-        <h3 className='text-sm font-medium'>Informações pessoais</h3>
+        <h3 className='font-medium text-sm'>Informações pessoais</h3>
 
         <div className='grid grid-cols-2 gap-3'>
           <FormField
@@ -129,7 +129,7 @@ export default function AddClientDialogBody(): JSX.Element {
 
       {/* Contact information */}
       <div className='flex flex-col gap-3'>
-        <h3 className='text-sm font-medium'>Informações de contato</h3>
+        <h3 className='font-medium text-sm'>Informações de contato</h3>
 
         <FormField
           control={control}
@@ -166,7 +166,7 @@ export default function AddClientDialogBody(): JSX.Element {
 
       {/* Additional information */}
       <div className='flex flex-col gap-3'>
-        <h3 className='text-sm font-medium'>Observações</h3>
+        <h3 className='font-medium text-sm'>Observações</h3>
 
         <FormField
           control={control}

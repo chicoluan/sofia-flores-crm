@@ -1,6 +1,4 @@
-import { auth } from '@sofiaflores/better-auth/auth'
 import Layout from '@sofiaflores/ui/components/layout'
-import { headers } from 'next/headers'
 import type { JSX, ReactNode } from 'react'
 import Header from './components/Header'
 import { spacingVariants } from '@sofiaflores/ui/components/spacing'
@@ -21,9 +19,7 @@ export default async function LadingLayout({
         {children}
       </Layout.Content>
       <div className='bg-zinc-50 dark:bg-background'>
-        <Layout.Footer
-          className={spacingVariants({ variant: 'footer' })}
-        ></Layout.Footer>
+        <Layout.Footer className={spacingVariants({ variant: 'footer' })} />
       </div>
     </Layout>
   )

@@ -23,6 +23,7 @@ export default function LoadingClients(): JSX.Element {
         {/* Table rows */}
         {Array.from({ length: 8 }).map((_, index) => (
           <div
+            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
             key={index}
             className='flex items-center gap-6 border-b px-4 py-5'
           >
