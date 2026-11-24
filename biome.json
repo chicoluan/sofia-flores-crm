@@ -1,17 +1,33 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.6.8/schema.json",
-  "assist": {
-    "actions": {
-      "source": {
-        "organizeImports": "off"
-      }
-    }
+  "$schema": "https://biomejs.dev/schemas/1.8.0/schema.json",
+  "organizeImports": {
+    "enabled": false
   },
   "linter": {
     "enabled": true,
     "rules": {
-      "preset": "recommended"
-    },
+      "recommended": true,
+      "correctness": {
+        "all": false,
+        "noUnusedImports": "error",
+        "noUnusedVariables": "error",
+        "useJsxKeyInIterable": "error"
+      },
+      "nursery": {
+        "useSortedClasses": {
+          "level": "warn",
+          "options": {
+            "functions": [
+              "cva"
+            ]
+          }
+        }
+      },
+      "style": {
+        "recommended": true,
+        "useBlockStatements": "error"
+      }
+    }
   },
   "formatter": {
     "enabled": true,
@@ -25,9 +41,8 @@
     }
   },
   "files": {
-    "includes": [
-      "**",
-      "!scripts/*.js"
+    "ignore": [
+      "scripts/*.js"
     ]
   }
 }

@@ -1,17 +1,17 @@
 import { useDialog } from '@/hooks/store/use-dialog-store'
 import {
-	ClientFormSchema,
-	type ClientForm,
-	type ClientFormInput,
+  ClientFormSchema,
+  type ClientForm,
+  type ClientFormInput,
 } from '@sofiaflores/db/schemas/clients/ClientFormSchema'
 import {
-	Dialog,
-	DialogClose,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@sofiaflores/ui/components/dialog'
 import { Form } from '@sofiaflores/ui/components/form'
 import type { JSX } from 'react'
@@ -23,62 +23,63 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 
 export default function AddClientDialog(): JSX.Element {
-	const { isOpen, onClose, type, data } = useDialog()
- 	const router = useRouter()
-	const isDialogOpen = isOpen && type === 'addClient'
+  const { isOpen, onClose, type, data } = useDialog()
+  const router = useRouter()
+  const isDialogOpen = isOpen && type === 'addClient'
 
-	const methods = useForm<ClientFormInput, unknown, ClientForm>({
-		resolver: zodResolver(ClientFormSchema),
-		defaultValues: {
-			firstName: '',
-			lastName: '',
-			cpf: '',
-			email: '',
-			phone: '',
-			birthday: '',
-			notes: '',
-		},
-	})
+  const methods = useForm<ClientFormInput, unknown, ClientForm>({
+    resolver: zodResolver(ClientFormSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      cpf: '',
+      email: '',
+      phone: '',
+      birthday: '',
+      notes: '',
+    },
+  })
 
-	const onSubmitForm = async (values: ClientForm) => {
-		try {
-			const { data } = await api.post('/clients', values)
+  const onSubmitForm = async (values: ClientForm) => {
+    try {
+      const { data } = await api.post('/clients', values)
 
-			onClose()
-			methods.reset()
-		} catch (error) {
-			console.error(error)
-		}
-	}
+      onClose()
+      methods.reset()
+      router.refresh()
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
-	return (
-		<Dialog open={isDialogOpen} onOpenChange={onClose}>
-			<DialogContent className='max-w-md'>
-				<DialogHeader>
-					<DialogTitle>Adicionar Novo Client</DialogTitle>
-					<DialogDescription>
-						Preencha os dados abaixo para adicionar a sua carteira de clientes.
-					</DialogDescription>
-				</DialogHeader>
+  return (
+    <Dialog open={isDialogOpen} onOpenChange={onClose}>
+      <DialogContent className='max-w-md'>
+        <DialogHeader>
+          <DialogTitle>Adicionar Novo Client</DialogTitle>
+          <DialogDescription>
+            Preencha os dados abaixo para adicionar a sua carteira de clientes.
+          </DialogDescription>
+        </DialogHeader>
 
-				<Form {...methods}>
-					<form onSubmit={methods.handleSubmit(onSubmitForm)}>
-						<AddClientDialogBody />
+        <Form {...methods}>
+          <form onSubmit={methods.handleSubmit(onSubmitForm)}>
+            <AddClientDialogBody />
 
-						<DialogFooter className='pt-4'>
-							<DialogClose asChild>
-								<Button variant='outline'>Cancelar</Button>
-							</DialogClose>
+            <DialogFooter className='pt-4'>
+              <DialogClose asChild>
+                <Button variant='outline'>Cancelar</Button>
+              </DialogClose>
 
-							<Button type='submit' disabled={methods.formState.isSubmitting}>
-								{methods.formState.isSubmitting
-									? 'Cadastrando...'
-									: 'Adicionar cliente'}
-							</Button>
-						</DialogFooter>
-					</form>
-				</Form>
-			</DialogContent>
-		</Dialog>
-	)
+              <Button type='submit' disabled={methods.formState.isSubmitting}>
+                {methods.formState.isSubmitting
+                  ? 'Cadastrando...'
+                  : 'Adicionar cliente'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  )
 }
