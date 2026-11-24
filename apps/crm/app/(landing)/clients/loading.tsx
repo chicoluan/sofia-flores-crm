@@ -1,9 +1,10 @@
-import { Skeleton } from "@sofiaflores/ui/components/skeleton";
-import type { JSX } from "react";
+import { Skeleton } from '@sofiaflores/ui/components/skeleton'
+import type { JSX } from 'react'
 
-export default function LoadingClients():JSX.Element {
-    return <section className='flex flex-1 flex-col gap-16 overflow-hidden px-10 py-16'>
-        <div className='flex items-center justify-between'>
+export default function LoadingClients(): JSX.Element {
+  return (
+    <section className='flex flex-1 flex-col gap-16 overflow-hidden px-10 py-16'>
+      <div className='flex items-center justify-between'>
         <Skeleton className='h-10 w-40' />
         <Skeleton className='h-10 w-32 rounded-md' />
       </div>
@@ -34,4 +35,5 @@ export default function LoadingClients():JSX.Element {
         ))}
       </div>
     </section>
+  )
 }

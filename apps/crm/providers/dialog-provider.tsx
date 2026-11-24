@@ -3,13 +3,15 @@ import AddFlowersDialog from '@/components/dialogs/AddFlowersDialog/AddFlowersDi
 import { useMountedState } from 'react-use'
 
 export const DialogProvider = () => {
-	const isMounted = useMountedState()
-	if (!isMounted) {
-		return null
-	}
+  const isMounted = useMountedState()
+  if (!isMounted) {
+    return null
+  }
 
-	return <>
-	<AddClientDialog />
-	<AddFlowersDialog />
-	</>
+  return (
+    <>
+      <AddClientDialog />
+      <AddFlowersDialog />
+    </>
+  )
 }

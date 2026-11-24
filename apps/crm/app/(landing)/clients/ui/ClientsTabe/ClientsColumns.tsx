@@ -75,7 +75,7 @@ export const ClientColumns: ReactTable.ColumnDef<Client>[] = [
     ),
   },
 
-   {
+  {
     accessorKey: 'birthday',
     id: 'birthday',
     header: ({ column }) => {
@@ -95,8 +95,8 @@ export const ClientColumns: ReactTable.ColumnDef<Client>[] = [
     cell: ({ cell }) => (
       <p className='line-clamp-1 flex flex-1 items-center truncate'>
         {cell.row.original.birthday
-        ? new Date(cell.row.original.birthday).toLocaleDateString('pt-BR')
-        : '-'}
+          ? new Date(cell.row.original.birthday).toLocaleDateString('pt-BR')
+          : '-'}
       </p>
     ),
   },
