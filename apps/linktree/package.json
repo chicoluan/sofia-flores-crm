@@ -15,6 +15,10 @@
 	},
 	"dependencies": {
 		"@base-ui/react": "^1.9.0",
+		"@sofiaflores/better-auth": "workspace:*",
+		"@sofiaflores/db": "workspace:*",
+		"@sofiaflores/tsconfig": "workspace:*",
+		"@sofiaflores/ui": "workspace:*",
 		"class-variance-authority": "^0.7.1",
 		"cn": "^0.5.2",
 		"lucide-react": "^1.73.0",

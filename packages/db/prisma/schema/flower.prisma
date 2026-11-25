@@ -1,0 +1,21 @@
+model Flower {
+    id String @id @default(cuid())
+
+    name         String
+    variety      String?
+    category     String
+    color        String?
+    unit         String  @default("stem")
+    quantity     Float   @default(0)
+    minQuantity  Float   @default(0)
+    costPrice    Float
+    sellingPrice Float
+    supplierId   String?
+    description  String?
+    notes        String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("stockFlowers")
+}
